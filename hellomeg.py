@@ -63,6 +63,9 @@ HEELO_MEG_LARGE = '''
        
      ■■
 '''
+HELLO_MEG_FEVER_PNG_PATH = 'assets/hellomeg/fever.png'
+HELLO_MEG_LOSER_PNG_PATH = 'assets/hellomeg/loser.png'
+HELLO_MEG_STAND_PNG_PATH = 'assets/hellomeg/stand.png'
 
 
 intents = discord.Intents.default()
@@ -79,11 +82,20 @@ async def on_ready():
 @tree.command(name="hellomeg",description="ハロめぐー！")
 async def hellomeg(interaction: discord.Interaction):
     print("called hellomeg")
+
     rand_num = random.random()
-    message = HELLO_MEG_MEDIUM
-    if rand_num < 0.1:
-        message = HEELO_MEG_LARGE
-    await interaction.response.send_message(message)
+    message = { 'content': HELLO_MEG_MEDIUM }
+
+    if rand_num < 0.05:
+        message = { 'content': HEELO_MEG_LARGE }
+    elif rand_num < 0.15:
+        message = { 'file': discord.File(HELLO_MEG_FEVER_PNG_PATH)}
+    elif rand_num < 0.25:
+        message = { 'file': discord.File(HELLO_MEG_LOSER_PNG_PATH)}
+    elif rand_num < 0.35:
+        message = { 'file': discord.File(HELLO_MEG_STAND_PNG_PATH)}
+    
+    await interaction.response.send_message(**message)
 
 
 @tree.command(name="999",description="何かが999倍の画像をつくる")

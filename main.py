@@ -104,9 +104,8 @@ HEELOMEG_MESSAGE_LARGE = """
        
      ■■
 """
-HELLOMEG_FEVER_PNG_PATH = "assets/hellomeg/fever.png"
-HELLOMEG_LOSER_PNG_PATH = "assets/hellomeg/loser.png"
-HELLOMEG_STAND_PNG_PATH = "assets/hellomeg/stand.png"
+HELLOMEG_PNG_DIR = "assets/hellomeg/"
+hellomeg_png_filenames = []
 
 
 @tree.command(name=HELLOMEG_COMMAND_NAME, description=HELLOMEG_COMMAND_DESC)
@@ -117,18 +116,16 @@ async def hellomeg(interaction: discord.Interaction):
     """
     log(str(interaction.guild_id), "command", f"/{HELLOMEG_COMMAND_NAME}")
 
-    rand_num = random.random()
     message = { "content": HELLOMEG_MESSAGE_MEDIUM }
 
+    rand_num = random.random()
     if rand_num < 0.03:
         message = { "content": HEELOMEG_MESSAGE_LARGE }
-    elif rand_num < 0.09:
-        message = { "file": discord.File(HELLOMEG_FEVER_PNG_PATH)}
-    elif rand_num < 0.15:
-        message = { "file": discord.File(HELLOMEG_LOSER_PNG_PATH)}
     elif rand_num < 0.21:
-        message = { "file": discord.File(HELLOMEG_STAND_PNG_PATH)}
-    
+        filename = random.choice(hellomeg_png_filenames)
+        filepath = HELLOMEG_PNG_DIR + filename
+        message = { "file": discord.File(filepath)}
+
     await interaction.response.send_message(**message)
 
 
@@ -194,6 +191,7 @@ def draw_text(text: str, targetImg, xy):
 
 
 if __name__ == "__main__":
+    hellomeg_png_filenames = [f for f in os.listdir(HELLOMEG_PNG_DIR) if f.endswith('.png')]
     load_dotenv()
     token = os.getenv("DISCORD_BOT_TOKEN")
     client.run(token)

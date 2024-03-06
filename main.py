@@ -26,6 +26,18 @@ async def on_ready():
     await tree.sync()
 
 
+ON_MESSAGE_LOG = "on_message"
+ON_MESSAGE_REPLY = "バイめぐー！"
+
+
+@client.event
+async def on_message(message):
+    if message.author.bot: return
+    if not isinstance(message.channel, discord.DMChannel): return
+    print(ON_MESSAGE_LOG)
+    await message.reply(ON_MESSAGE_REPLY)
+
+
 HELLOMEG_COMMAND_NAME = "hellomeg"
 HELLOMEG_COMMAND_DESC = "ハロめぐー！"
 HELLOMEG_MESSAGE_MEDIUM = """

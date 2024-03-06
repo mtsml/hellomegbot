@@ -161,11 +161,10 @@ async def fever(interaction: discord.Interaction, 一行目: str, 二行目: str
     埋め込みに利用しているフォントの半角文字の幅が、全角文字の半分よりも大きいため、この現象が発生する。
     等幅フォントではなく制限が難しいこと、ユースケースとして半角文字の使用は少ないと考えられることから、この現象を許容する。
     """
-    print(str(interaction.guild_id), "command", f"/{FEVER_COMMAND_NAME}", f"一行目: {一行目}, 二行目: {二行目}")
+    log(str(interaction.guild_id), "command", f"/{FEVER_COMMAND_NAME}", f"一行目: {一行目}, 二行目: {二行目}")
 
     if len_half_width(一行目) > 10 or len_half_width(二行目) > 10:
         await interaction.response.send_message(FEVER_MESSAGE_TOO_LONG_INPUT, ephemeral=True)
-        print("/{FEVER_COMMAND_NAME} | warning | too long input")
         return
 
     text = f"{一行目}\n{二行目}"

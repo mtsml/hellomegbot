@@ -106,6 +106,9 @@ HEELOMEG_MESSAGE_LARGE = """
 """
 HELLOMEG_PNG_DIR = "assets/hellomeg/"
 hellomeg_png_filenames = []
+hellomeg_fever_minute = 0
+hellomeg_ur_probability = 0.03
+hellomeg_sr_probability = 0.18
 
 
 @tree.command(name=HELLOMEG_COMMAND_NAME, description=HELLOMEG_COMMAND_DESC)
@@ -116,15 +119,19 @@ async def hellomeg(interaction: discord.Interaction):
     """
     log(str(interaction.guild_id), "command", f"/{HELLOMEG_COMMAND_NAME}")
 
-    message = { "content": HELLOMEG_MESSAGE_MEDIUM }
-
     rand_num = random.random()
-    if rand_num < 0.03:
+    if interaction.created_at.minute == hellomeg_fever_minute:
+        # FEVER している時は UR または SR のみ排出する
+        rand_num = random.uniform(0, hellomeg_ur_probability + hellomeg_sr_probability)
+
+    if rand_num < hellomeg_ur_probability:
         message = { "content": HEELOMEG_MESSAGE_LARGE }
-    elif rand_num < 0.21:
+    elif rand_num < hellomeg_ur_probability + hellomeg_sr_probability:
         filename = random.choice(hellomeg_png_filenames)
         filepath = HELLOMEG_PNG_DIR + filename
         message = { "file": discord.File(filepath)}
+    else:
+        message = { "content": HELLOMEG_MESSAGE_MEDIUM }
 
     await interaction.response.send_message(**message)
 
@@ -192,6 +199,11 @@ def draw_text(text: str, targetImg, xy):
 
 if __name__ == "__main__":
     hellomeg_png_filenames = [f for f in os.listdir(HELLOMEG_PNG_DIR) if f.endswith('.png')]
+
     load_dotenv()
+    hellomeg_fever_minute = int(os.getenv("HELLOMEG_FEVER_MINUTE", hellomeg_fever_minute))
+    hellomeg_ur_probability = float(os.getenv("HELLOMEG_UR_PROBABILITY", hellomeg_ur_probability))
+    hellomeg_sr_probability = float(os.getenv("HELLOMEG_SR_PROBABILITY", hellomeg_sr_probability))
     token = os.getenv("DISCORD_BOT_TOKEN")
+
     client.run(token)

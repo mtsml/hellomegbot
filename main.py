@@ -13,6 +13,14 @@ client = discord.Client(intents=intents)
 tree = discord.app_commands.CommandTree(client)
 
 
+def log(*args):
+    """ログ出力
+
+    TODO: logging に書き換える
+    """
+    print(" | ".join(args))
+
+
 LOG_READY = """
 ---------------------
 | HelloMegBot running
@@ -22,7 +30,7 @@ LOG_READY = """
 
 @client.event
 async def on_ready():
-    print(LOG_READY)
+    log(LOG_READY)
     await tree.sync()
 
 
@@ -34,7 +42,8 @@ ON_MESSAGE_REPLY = "バイめぐー！"
 async def on_message(message):
     if message.author.bot: return
     if not isinstance(message.channel, discord.DMChannel): return
-    print(ON_MESSAGE_LOG)
+    # DM は guild_id 取得不可。DM オブジェクトを文字列に変換して渡す
+    log(str(message.channel), ON_MESSAGE_LOG)
     await message.reply(ON_MESSAGE_REPLY)
 
 
@@ -106,7 +115,7 @@ async def hellomeg(interaction: discord.Interaction):
 
     それぞれの確率にもとづきアスキーアートや画像をユーザーに返答する。
     """
-    print(f"/{HELLOMEG_COMMAND_NAME} | called")
+    log(str(interaction.guild_id), "command", f"/{HELLOMEG_COMMAND_NAME}")
 
     rand_num = random.random()
     message = { "content": HELLOMEG_MESSAGE_MEDIUM }
@@ -148,7 +157,7 @@ async def fever(interaction: discord.Interaction, 一行目: str, 二行目: str
     埋め込みに利用しているフォントの半角文字の幅が、全角文字の半分よりも大きいため、この現象が発生する。
     等幅フォントではなく制限が難しいこと、ユースケースとして半角文字の使用は少ないと考えられることから、この現象を許容する。
     """
-    print(f"/{FEVER_COMMAND_NAME} | called | 一行目: {一行目}, 二行目: {二行目}")
+    print(str(interaction.guild_id), "command", f"/{FEVER_COMMAND_NAME}", f"一行目: {一行目}, 二行目: {二行目}")
 
     if len_half_width(一行目) > 10 or len_half_width(二行目) > 10:
         await interaction.response.send_message(FEVER_MESSAGE_TOO_LONG_INPUT, ephemeral=True)

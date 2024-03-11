@@ -1,3 +1,4 @@
+import glob
 import io
 import os
 import random
@@ -105,7 +106,9 @@ HEELOMEG_MESSAGE_LARGE = """
      ■■
 """
 HELLOMEG_PNG_DIR = "assets/hellomeg/"
-hellomeg_png_filenames = []
+HELLOMEG_PNG_MESSAGE = "イラスト："
+TWITTER_PROFILE_URL = "https://twitter.com/"
+hellomeg_png_filepaths = []
 hellomeg_fever_minute = 0
 hellomeg_ur_probability = 0.03
 hellomeg_sr_probability = 0.18
@@ -127,9 +130,14 @@ async def hellomeg(interaction: discord.Interaction):
     if rand_num < hellomeg_ur_probability:
         message = { "content": HEELOMEG_MESSAGE_LARGE }
     elif rand_num < hellomeg_ur_probability + hellomeg_sr_probability:
-        filename = random.choice(hellomeg_png_filenames)
-        filepath = HELLOMEG_PNG_DIR + filename
-        message = { "file": discord.File(filepath)}
+        filepath = random.choice(hellomeg_png_filepaths)
+        twitter_id = filepath.split("/")[2]
+        twiiter_profile_url = TWITTER_PROFILE_URL + twitter_id
+        message = {
+            # <> で URL を囲むことで Discord で OGP が表示されなくなる
+            "content": f"{HELLOMEG_PNG_MESSAGE}[@{twitter_id}](<{twiiter_profile_url}>)",
+            "file": discord.File(filepath)
+        }
     else:
         message = { "content": HELLOMEG_MESSAGE_MEDIUM }
 
@@ -197,7 +205,7 @@ def draw_text(text: str, targetImg, xy):
 
 
 if __name__ == "__main__":
-    hellomeg_png_filenames = [f for f in os.listdir(HELLOMEG_PNG_DIR) if f.endswith('.png')]
+    hellomeg_png_filepaths = [f for f in glob.glob(os.path.join(HELLOMEG_PNG_DIR, "*", "*.png"))]
 
     load_dotenv()
     hellomeg_fever_minute = int(os.getenv("HELLOMEG_FEVER_MINUTE", hellomeg_fever_minute))

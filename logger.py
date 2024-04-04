@@ -46,16 +46,16 @@ class Logger():
         return '{}, {}, {}'.format(filename, frame.f_code.co_name, frame.f_lineno)
 
     def writeLogDebug(self, message):
-        self._writeLog('DEBUG', message, str(self._getLocation()))
+        self._writeLog(logging.DEBUG, message, str(self._getLocation()))
 
     def writeLogInfo(self, message):
-        self._writeLog('INFO', message, str(self._getLocation()))
+        self._writeLog(logging.INFO, message, str(self._getLocation()))
 
     def writeLogWarning(self, message):
-        self._writeLog('WARNING', message, str(self._getLocation()))
+        self._writeLog(logging.WARNING, message, str(self._getLocation()))
 
     def writeLogError(self, message):
-        self._writeLog('ERROR', message, str(self._getLocation()))
+        self._writeLog(logging.ERROR, message, str(self._getLocation()))
 
     def _writeLog(self, logLevel, message, location=None):
         if location is None:
@@ -63,11 +63,11 @@ class Logger():
 
         message ='"location":"' + location + '",' + '"message":"' + str(message)
 
-        if logLevel == 'DEBUG':
+        if logLevel == logging.DEBUG:
             self.__streamLogger.debug(message)
-        elif logLevel == 'INFO':
+        elif logLevel == logging.INFO:
             self.__streamLogger.info(message)
-        elif logLevel == 'WARNING':
+        elif logLevel == logging.WARNING:
             self.__streamLogger.warning(message)
-        elif logLevel == 'ERROR':
+        elif logLevel == logging.ERROR:
             self.__streamLogger.error(message)

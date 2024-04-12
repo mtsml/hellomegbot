@@ -1,6 +1,13 @@
 import logging
+from logging.handlers import RotatingFileHandler
 import inspect
 import os
+
+
+OUTPUT_LOGFILE_PATH = '.'
+OUTPUT_LOGFILE_NAME = 'log'
+OUTPUT_LOGFILE_MAX_BYTE = 1024 * 1024
+OUTPUT_LOGFILE_BACKUP_COUNT = 2
 
 
 class Logger():
@@ -8,17 +15,32 @@ class Logger():
 
     クラス作成時に出力したいログレベルが指定されていればそれを
     指定されなければ環境変数から取得したログレベルを出力する
+
+    outputFileがTrueの場合はストリームだけでなくファイルにもログを出力する
     """
 
-    def __init__(self, streamLevel=None):
+    def __init__(self, streamLevel=None, outputFile=False):
         self.__streamLogger = logging.getLogger()
         for handler in self.__streamLogger.handlers:
             self.__streamLogger.removeHandler(handler)
         self.formatter = logging.Formatter(
             '{"time":"%(asctime)s","level":"%(levelname)s",%(message)s"}')
+
+        # log出力をストリームに送信する設定
         self.__streamHandler = logging.StreamHandler()
         self.__streamHandler.setFormatter(self.formatter)
         self.__streamLogger.addHandler(self.__streamHandler)
+
+        # log出力をファイルに送信する設定
+        if outputFile is True:
+            self.__rotatingFileHandler = RotatingFileHandler(
+                filename=F'{OUTPUT_LOGFILE_PATH}/{OUTPUT_LOGFILE_NAME}.log',
+                maxBytes=OUTPUT_LOGFILE_MAX_BYTE,
+                backupCount=OUTPUT_LOGFILE_BACKUP_COUNT,
+                encoding='utf-8'
+            )
+            self.__rotatingFileHandler.setFormatter(self.formatter)
+            self.__streamLogger.addHandler(self.__rotatingFileHandler)
 
         if streamLevel is not None:
             self.__streamLogger.setLevel(streamLevel)
@@ -38,7 +60,6 @@ class Logger():
         else:
             # 環境変数から見つからない場合のデフォルトはINFOで
             self.__streamLogger.setLevel(logging.INFO)
-
 
     def _getLocation(self):
         frame = inspect.currentframe().f_back.f_back

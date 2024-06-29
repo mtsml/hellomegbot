@@ -114,6 +114,9 @@ hellomeg_ur_probability = 0.03
 hellomeg_sr_probability = 0.18
 
 
+KANBAN_HELLOMEG_PR = '[看板ハロめぐ総選挙開催中🏝️](<https://kiaiiretekonchiku.show/special/kanazawa_1st/>)'
+
+
 @tree.command(name=HELLOMEG_COMMAND_NAME, description=HELLOMEG_COMMAND_DESC)
 async def hellomeg(interaction: discord.Interaction):
     """多様なハロめぐー！を返答するスラッシュコマンド
@@ -128,18 +131,19 @@ async def hellomeg(interaction: discord.Interaction):
         rand_num = random.uniform(0, hellomeg_ur_probability + hellomeg_sr_probability)
 
     if rand_num < hellomeg_ur_probability:
-        message = { "content": HEELOMEG_MESSAGE_LARGE }
+        message = { "content": KANBAN_HELLOMEG_PR + "\n" + HEELOMEG_MESSAGE_LARGE }
     elif rand_num < hellomeg_ur_probability + hellomeg_sr_probability:
         filepath = random.choice(hellomeg_png_filepaths)
         twitter_id = filepath.split("/")[2]
         twiiter_profile_url = TWITTER_PROFILE_URL + twitter_id
         message = {
             # <> で URL を囲むことで Discord で OGP が表示されなくなる
-            "content": f"{HELLOMEG_PNG_MESSAGE}[@{twitter_id}](<{twiiter_profile_url}>)",
+            # "content": f"{HELLOMEG_PNG_MESSAGE}[@{twitter_id}](<{twiiter_profile_url}>)",
+            "content": KANBAN_HELLOMEG_PR,
             "file": discord.File(filepath)
         }
     else:
-        message = { "content": HELLOMEG_MESSAGE_MEDIUM }
+        message = { "content": KANBAN_HELLOMEG_PR + "\n" +HELLOMEG_MESSAGE_MEDIUM }
 
     await interaction.response.send_message(**message)
 

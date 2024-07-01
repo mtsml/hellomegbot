@@ -131,7 +131,7 @@ async def hellomeg(interaction: discord.Interaction):
         rand_num = random.uniform(0, hellomeg_ur_probability + hellomeg_sr_probability)
 
     if rand_num < hellomeg_ur_probability:
-        message = { "content": HEELOMEG_MESSAGE_LARGE + "\n" + KANBAN_HELLOMEG_PR }
+        message = { "content": KANBAN_HELLOMEG_PR + "\n" + HEELOMEG_MESSAGE_LARGE }
     elif rand_num < hellomeg_ur_probability + hellomeg_sr_probability:
         filepath = random.choice(hellomeg_png_filepaths)
         twitter_id = filepath.split("/")[2]
@@ -143,7 +143,7 @@ async def hellomeg(interaction: discord.Interaction):
             "file": discord.File(filepath)
         }
     else:
-        message = { "content": HELLOMEG_MESSAGE_MEDIUM + KANBAN_HELLOMEG_PR }
+        message = { "content": KANBAN_HELLOMEG_PR + "\n" +HELLOMEG_MESSAGE_MEDIUM }
 
     await interaction.response.send_message(**message)
 

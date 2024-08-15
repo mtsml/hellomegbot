@@ -1,3 +1,4 @@
+import typing
 import glob
 import io
 import os
@@ -202,6 +203,72 @@ def draw_text(text: str, targetImg, xy):
     textDraw.text((20, 15), text, FEVER_TEXT_COLOR, font=font)
     textImg = textImg.rotate(14)
     targetImg.paste(textImg, xy, textImg)
+
+
+KEIBA_RESULT_COMMAND_NAME = "keibaresult"
+KEIBA_RESULT_COMMAND_DESC = "競馬の結果を報告する"
+KEIBA_RESULT_WIN_PNG_DIR = "assets/keibaresult/win/"
+KEIBA_RESULT_LOSE_PNG_DIR = "assets/keibaresult/lose/"
+KEIBA_RESULT_DRAW_PNG_DIR = "assets/keibaresult/draw/"
+KEIBA_RESULT_WIN_MESSAGE = "ハロめぐー！"
+KEIBA_RESULT_LOSE_MESSAGE = "バイめぐ〜"
+KEIBA_RESULT_DRAW_MESSAGE = "めぐ"
+KEIBA_RESULT_ERROR_REQUIRE_MORE_THAN_ZERO = "amount に 0 より大き値を入れろ"
+KEIBA_RESULT_ERROR_REQUIRE_ZERO = "amount に 0 を入れろ"
+
+@tree.command(name=KEIBA_RESULT_COMMAND_NAME, description=KEIBA_RESULT_COMMAND_DESC)
+@discord.app_commands.choices(
+    result=[
+        discord.app_commands.Choice(name=KEIBA_RESULT_WIN_MESSAGE, value=KEIBA_RESULT_WIN_MESSAGE),
+        discord.app_commands.Choice(name=KEIBA_RESULT_LOSE_MESSAGE, value=KEIBA_RESULT_LOSE_MESSAGE),
+        discord.app_commands.Choice(name=KEIBA_RESULT_DRAW_MESSAGE, value=KEIBA_RESULT_DRAW_MESSAGE)
+    ]
+)
+@discord.app_commands.describe(
+    result="今日の競馬の結果は？",
+    amount="いくら？"
+)
+async def keibaresult(interaction: discord.Interaction, result: str, amount: discord.app_commands.Range[int, 0, None]):
+    """競馬の結果に対して返答するスラッシュコマンド
+
+    - 収支がプラスの場合は「ハロめぐー！」と勝利イラストを返答する
+    - 収支がマイナスの場合は「バイめぐ〜」と敗北イラストを返答する
+    - 収支がプラマイゼロの場合は「めぐ」とドローイラストを返答する
+    """
+    log(str(interaction.guild_id), "command", f"/{KEIBA_RESULT_COMMAND_NAME}", f"result: {result}, amount: {amount}")
+
+    # かった
+    if result == KEIBA_RESULT_WIN_MESSAGE:
+        if amount == 0:
+            await interaction.response.send_message(KEIBA_RESULT_ERROR_REQUIRE_MORE_THAN_ZERO, ephemeral=True)
+            return
+        filepaths = [f for f in glob.glob(os.path.join(KEIBA_RESULT_WIN_PNG_DIR, "*.png"))]
+        format_amount = f"{amount:,}"
+        message = {
+            "content": f"{KEIBA_RESULT_WIN_MESSAGE} (+{format_amount})",
+            "file": discord.File(random.choice(filepaths))
+        }
+    # まけた
+    if result == KEIBA_RESULT_LOSE_MESSAGE:
+        if amount == 0:
+            await interaction.response.send_message(KEIBA_RESULT_ERROR_REQUIRE_MORE_THAN_ZERO, ephemeral=True)
+            return
+        filepaths = [f for f in glob.glob(os.path.join(KEIBA_RESULT_LOSE_PNG_DIR, "*.png"))]
+        format_amount = f"{amount:,}"
+        message = {
+            "content": f"{KEIBA_RESULT_WIN_MESSAGE} (-{format_amount})",
+            "file": discord.File(random.choice(filepaths))
+        }
+    # どろー
+    if result == KEIBA_RESULT_DRAW_MESSAGE:
+        if amount != 0:
+            await interaction.response.send_message(KEIBA_RESULT_ERROR_REQUIRE_ZERO, ephemeral=True)
+            return
+        message = {
+            "content": f"{KEIBA_RESULT_DRAW_MESSAGE} (±0)"
+        }
+
+    await interaction.response.send_message(**message)
 
 
 if __name__ == "__main__":

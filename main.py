@@ -256,7 +256,7 @@ async def keibaresult(interaction: discord.Interaction, result: str, amount: dis
         filepaths = [f for f in glob.glob(os.path.join(KEIBA_RESULT_LOSE_PNG_DIR, "*.png"))]
         format_amount = f"{amount:,}"
         message = {
-            "content": f"{KEIBA_RESULT_WIN_MESSAGE} (-{format_amount})",
+            "content": f"{KEIBA_RESULT_LOSE_MESSAGE} (-{format_amount})",
             "file": discord.File(random.choice(filepaths))
         }
     # どろー

@@ -1,4 +1,3 @@
-import typing
 import glob
 import io
 import os
@@ -8,6 +7,8 @@ import unicodedata
 import discord
 from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont
+
+import meggen
 
 
 intents = discord.Intents.default()
@@ -269,6 +270,17 @@ async def keibaresult(interaction: discord.Interaction, result: str, amount: dis
         }
 
     await interaction.response.send_message(**message)
+
+
+@tree.command(name=meggen.COMMAND_NAME, description=meggen.COMMAND_DESC)
+@discord.app_commands.choices(**meggen.COMMAND_CHOICES)
+@discord.app_commands.describe(**meggen.COMMAND_CHOICES_DESCRIBE)
+@discord.app_commands.rename(**meggen.COMMAND_CHOICES_RENAME)
+async def hundle_meggen(interaction: discord.Interaction, img: str) -> None:
+    """任意のテキストを入れたハロめぐのイラストをつくる
+    """
+    log(str(interaction.guild_id), "command", f"/{meggen.COMMAND_NAME}", img)
+    await meggen.command(interaction, img)
 
 
 if __name__ == "__main__":

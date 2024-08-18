@@ -97,7 +97,7 @@ class Modal(discord.ui.Modal, title="テキスト入力"):
         arr.seek(0)
         file = discord.File(arr, filename=self.img_info["send_filename"])
 
-        await interaction.response.send_message(file=file, ephemeral=True)
+        await interaction.response.send_message(file=file)
 
 
 def draw_text(text: str, img_info):

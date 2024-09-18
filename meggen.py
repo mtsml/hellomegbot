@@ -11,6 +11,7 @@ COMMAND_CHOICES = {
         discord.app_commands.Choice(name="ハロめぐだもん", value="damon"),
         discord.app_commands.Choice(name="ハクチュー", value="hkc"),
         discord.app_commands.Choice(name="宇宙猫", value="universe"),
+        discord.app_commands.Choice(name="蓮ノ空しかないんすよ", value="hasunosorashikanainsuyo"),
     ]
 }
 COMMAND_CHOICES_DESCRIBE = {
@@ -71,11 +72,24 @@ IMG_UNIVERSE = {
     'text_paste_xy': (720, 450),
     'send_filename': 'universe.png',
 }
+IMG_HASUNOSORASHIKANAINSUYO = {
+    'label': "テキスト（10文字×1行までを推奨）",
+    'img_path': "assets/meggen/hasunosorashikanainsuyo.png",
+    'text_img_size': (1050, 150),
+    'text_color': "#000000",
+    'text_font_size': 100,
+    'text_font_family': "MPLUSRounded1c-Black.ttf",
+    'text_start_xy': (0, 0),
+    'text_rotate': 0,
+    'text_paste_xy': (150, 50),
+    'send_filename': 'hasunosorashikanainsuyo.png',
+}
 IMG_INFO_MAP = {
     'fever': IMG_FEVER,
     'damon': IMG_DAMON,
     'hkc': IMG_HKC,
     'universe': IMG_UNIVERSE,
+    'hasunosorashikanainsuyo': IMG_HASUNOSORASHIKANAINSUYO,
 }
 
 

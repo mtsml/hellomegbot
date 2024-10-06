@@ -34,6 +34,8 @@ LOG_READY = """
 @client.event
 async def on_ready():
     log(LOG_READY)
+    log((f"server len: {len(client.guilds)}"))
+    await client.change_presence(activity=discord.CustomActivity(name="アンケート実施中"))
     await tree.sync()
 
 

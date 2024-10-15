@@ -111,7 +111,6 @@ HEELOMEG_MESSAGE_LARGE = """
 """
 HELLOMEG_PNG_DIR = "assets/hellomeg/"
 HELLOMEG_PNG_MESSAGE = "イラスト："
-HELLOMEG_UTAGE_MESSAGE = "【宴キャンペーン実施中】"
 TWITTER_PROFILE_URL = "https://twitter.com/"
 hellomeg_png_filepaths = []
 hellomeg_fever_minute = 0
@@ -133,14 +132,14 @@ async def hellomeg(interaction: discord.Interaction):
         rand_num = random.uniform(0, hellomeg_ur_probability + hellomeg_sr_probability)
 
     if rand_num < hellomeg_ur_probability:
-        message = { "content": f"{HELLOMEG_UTAGE_MESSAGE}{HEELOMEG_MESSAGE_LARGE}" }
+        message = { "content": HEELOMEG_MESSAGE_LARGE }
     elif rand_num < hellomeg_ur_probability + hellomeg_sr_probability:
         filepath = random.choice(hellomeg_png_filepaths)
         twitter_id = filepath.split("/")[2]
         twiiter_profile_url = TWITTER_PROFILE_URL + twitter_id
         message = {
             # <> で URL を囲むことで Discord で OGP が表示されなくなる
-            "content": f"{HELLOMEG_UTAGE_MESSAGE}\n{HELLOMEG_PNG_MESSAGE}[@{twitter_id}](<{twiiter_profile_url}>)",
+            "content": f"{HELLOMEG_PNG_MESSAGE}[@{twitter_id}](<{twiiter_profile_url}>)",
             "file": discord.File(filepath)
         }
     else:

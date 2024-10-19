@@ -12,6 +12,7 @@ COMMAND_CHOICES = {
         discord.app_commands.Choice(name="ハクチュー", value="hkc"),
         discord.app_commands.Choice(name="宇宙猫", value="universe"),
         discord.app_commands.Choice(name="蓮ノ空しかないんすよ", value="hasunosorashikanainsuyo"),
+        discord.app_commands.Choice(name="ドヤめぐ", value="doya"),
     ]
 }
 COMMAND_CHOICES_DESCRIBE = {
@@ -21,7 +22,8 @@ COMMAND_CHOICES_RENAME = {
     "img": "イラスト"
 }
 IMG_FEVER = {
-    'label': "テキスト（5文字×3行までを推奨）",
+    'rows': 3,
+    'label': "（5文字まで）",
     'img_path': "assets/meggen/fever.png",
     'text_img_size': (600, 500),
     'text_color': "#764c4d",
@@ -33,7 +35,8 @@ IMG_FEVER = {
     'send_filename': 'fever.png',
 }
 IMG_DAMON = {
-    'label': "テキスト（10文字×2行までを推奨）",
+    'rows': 2,
+    'label': "（10文字まで）",
     'img_path': "assets/meggen/damon.png",
     'text_img_size': (1050, 300),
     'text_color': "#ceaa9e",
@@ -47,7 +50,8 @@ IMG_DAMON = {
     'send_filename': 'damon.png',
 }
 IMG_HKC = {
-    'label': "テキスト（7文字×1行までを推奨）",
+    'rows': 1,
+    'label': "（7文字まで）",
     'img_path': "assets/meggen/hkc.png",
     'text_img_size': (500, 300),
     'text_color': "#c1e3da",
@@ -61,7 +65,8 @@ IMG_HKC = {
     'send_filename': 'hkc.png',
 }
 IMG_UNIVERSE = {
-    'label': "テキスト（5文字×2行までを推奨）",
+    'rows': 2,
+    'label': "（5文字まで）",
     'img_path': "assets/meggen/universe.png",
     'text_img_size': (350, 260),
     'text_color': "#000000",
@@ -73,9 +78,10 @@ IMG_UNIVERSE = {
     'send_filename': 'universe.png',
 }
 IMG_HASUNOSORASHIKANAINSUYO = {
-    'label': "テキスト（10文字×1行までを推奨）",
+    'rows': 3,
+    'label': "（10文字まで）",
     'img_path': "assets/meggen/hasunosorashikanainsuyo.png",
-    'text_img_size': (1050, 150),
+    'text_img_size': (1050, 400),
     'text_color': "#000000",
     'text_font_size': 100,
     'text_font_family': "MPLUSRounded1c-Black.ttf",
@@ -84,12 +90,26 @@ IMG_HASUNOSORASHIKANAINSUYO = {
     'text_paste_xy': (150, 50),
     'send_filename': 'hasunosorashikanainsuyo.png',
 }
+IMG_DOYA = {
+    'rows': 5,
+    'label': "（10文字まで）",
+    'img_path': "assets/meggen/doya.png",
+    'text_img_size': (700, 400),
+    'text_color': "#ffffff",
+    'text_font_size': 70,
+    'text_font_family': "MPLUSRounded1c-Black.ttf",
+    'text_start_xy': (0, 0),
+    'text_rotate': 0,
+    'text_paste_xy': (50, 500),
+    'send_filename': 'doya.png',
+}
 IMG_INFO_MAP = {
     'fever': IMG_FEVER,
     'damon': IMG_DAMON,
     'hkc': IMG_HKC,
     'universe': IMG_UNIVERSE,
     'hasunosorashikanainsuyo': IMG_HASUNOSORASHIKANAINSUYO,
+    'doya': IMG_DOYA,
 }
 
 
@@ -98,12 +118,16 @@ class Modal(discord.ui.Modal, title="テキスト入力"):
     def __init__(self, img):
         super().__init__()
         self.img_info = IMG_INFO_MAP[img]
-        self.text = discord.ui.TextInput(label=self.img_info["label"], style=discord.TextStyle.long)
-        self.add_item(self.text)
-
+        self.textInputs = []
+        for i in range(self.img_info["rows"]):
+            self.textInputs.append(discord.ui.TextInput(
+                label=f"{i+1}行目{self.img_info['label']}",
+                style=discord.TextStyle.short,
+                required=False))
+            self.add_item(self.textInputs[i])
 
     async def on_submit(self, interaction: discord.Interaction):
-        text = self.text.value
+        text = "\n".join(map(lambda t: t.value, self.textInputs))
         img = draw_text(text, self.img_info)
 
         arr = io.BytesIO()

@@ -1,6 +1,6 @@
 # hellomegbot
 ### Usage
-1. 環境変数　`DISCORD_BOT_TOKEN` を設定
+1. 環境変数 `DISCORD_BOT_TOKEN` を設定
     ```bash
     echo "DISCORD_BOT_TOKEN=discord_bot_token" >> .env
     ```

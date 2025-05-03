@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont
 
 import meggen
-
+from src.hellomegbot.commands import hellomeg
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
@@ -50,102 +50,6 @@ async def on_message(message):
     # DM は guild_id 取得不可。DM オブジェクトを文字列に変換して渡す
     log(str(message.channel), ON_MESSAGE_LOG)
     await message.reply(ON_MESSAGE_REPLY)
-
-
-HELLOMEG_COMMAND_NAME = "hellomeg"
-HELLOMEG_COMMAND_DESC = "ハロめぐー！"
-HELLOMEG_MESSAGE_MEDIUM = """
-＿人人人人人人人人＿
-＞　ハロめぐー！　＜
-￣Y^Y^Y^Y^Y^Y^Y￣
-"""
-HEELOMEG_MESSAGE_LARGE = """
-​           
-   ■       
-   ■   ■   
-   ■   ■   
-  ■■   ■   
-  ■     ■  
-  ■     ■  
- ■      ■■ 
- ■       ■ 
-           
-　■■■■■■■■  
-　■       ■ 
-　■       ■ 
-　■       ■ 
-　■       ■ 
-　■       ■ 
-　■       ■ 
-　■■■■■■■■■ 
-         
-      ■     
-  ■   ■     
-  ■■■ ■■■   
-  ■■  ■ ■■  
- ■ ■ ■   ■  
- ■ ■ ■   ■  
- ■  ■    ■  
- ■ ■■   ■   
- ■■■   ■    
-         
-      ■    
-     ■■    
-   ■■      
-  ■■  ■ ■  
- ■     ■   
- ■■        
-  ■■       
-    ■■     
-     ■■    
-         
-     ■■
-     ■■
-     ■■
-     ■■
-     ■■
-     ■■
-     ■■
-       
-     ■■
-"""
-HELLOMEG_PNG_DIR = "assets/hellomeg/"
-HELLOMEG_PNG_MESSAGE = "イラスト："
-TWITTER_PROFILE_URL = "https://twitter.com/"
-hellomeg_png_filepaths = []
-hellomeg_fever_minute = 0
-hellomeg_ur_probability = 0.03
-hellomeg_sr_probability = 0.18
-
-
-@tree.command(name=HELLOMEG_COMMAND_NAME, description=HELLOMEG_COMMAND_DESC)
-async def hellomeg(interaction: discord.Interaction):
-    """多様なハロめぐー！を返答するスラッシュコマンド
-
-    それぞれの確率にもとづきアスキーアートや画像をユーザーに返答する。
-    """
-    log(str(interaction.guild_id), "command", f"/{HELLOMEG_COMMAND_NAME}")
-
-    rand_num = random.random()
-    if interaction.created_at.minute == hellomeg_fever_minute:
-        # FEVER している時は UR または SR のみ排出する
-        rand_num = random.uniform(0, hellomeg_ur_probability + hellomeg_sr_probability)
-
-    if rand_num < hellomeg_ur_probability:
-        message = { "content": HEELOMEG_MESSAGE_LARGE }
-    elif rand_num < hellomeg_ur_probability + hellomeg_sr_probability:
-        filepath = random.choice(hellomeg_png_filepaths)
-        twitter_id = filepath.split("/")[2]
-        twiiter_profile_url = TWITTER_PROFILE_URL + twitter_id
-        message = {
-            # <> で URL を囲むことで Discord で OGP が表示されなくなる
-            "content": f"{HELLOMEG_PNG_MESSAGE}[@{twitter_id}](<{twiiter_profile_url}>)",
-            "file": discord.File(filepath)
-        }
-    else:
-        message = { "content": HELLOMEG_MESSAGE_MEDIUM }
-
-    await interaction.response.send_message(**message)
 
 
 FEVER_COMMAND_NAME = "999"
@@ -286,12 +190,14 @@ async def hundle_meggen(interaction: discord.Interaction, img: str) -> None:
 
 
 if __name__ == "__main__":
-    hellomeg_png_filepaths = [f for f in glob.glob(os.path.join(HELLOMEG_PNG_DIR, "*", "*.png"))]
-
     load_dotenv()
-    hellomeg_fever_minute = int(os.getenv("HELLOMEG_FEVER_MINUTE", hellomeg_fever_minute))
-    hellomeg_ur_probability = float(os.getenv("HELLOMEG_UR_PROBABILITY", hellomeg_ur_probability))
-    hellomeg_sr_probability = float(os.getenv("HELLOMEG_SR_PROBABILITY", hellomeg_sr_probability))
-    token = os.getenv("DISCORD_BOT_TOKEN")
 
+    hellomeg.setup_hellomeg()
+    hellomeg_fever_minute = int(os.getenv("HELLOMEG_FEVER_MINUTE", hellomeg.hellomeg_fever_minute))
+    hellomeg_ur_probability = float(os.getenv("HELLOMEG_UR_PROBABILITY", hellomeg.hellomeg_ur_probability))
+    hellomeg_sr_probability = float(os.getenv("HELLOMEG_SR_PROBABILITY", hellomeg.hellomeg_sr_probability))
+    hellomeg.set_config(hellomeg_fever_minute, hellomeg_ur_probability, hellomeg_sr_probability)
+    hellomeg.register_command(tree)
+
+    token = os.getenv("DISCORD_BOT_TOKEN")
     client.run(token)

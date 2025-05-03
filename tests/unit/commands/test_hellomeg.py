@@ -4,6 +4,8 @@ import random
 import unittest.mock as mock
 import pytest
 import discord
+import requests
+import sqlite3
 from discord import Interaction, File
 
 from src.hellomegbot.commands import hellomeg
@@ -12,32 +14,96 @@ from src.hellomegbot.commands import hellomeg
 class TestHellomeg:
     """hellomeg.py のテストクラス"""
 
-    def test_setup_hellomeg(self, monkeypatch):
-        """setup_hellomeg関数のテスト"""
-        # glob.globの戻り値をモック化
-        mock_png_files = [
-            "assets/hellomeg/user1/image1.png",
-            "assets/hellomeg/user2/image2.png"
+    def test_download_database(self, monkeypatch):
+        """download_database関数のテスト"""
+        # requestsのgetメソッドをモック化
+        mock_response = mock.MagicMock()
+        mock_response.content = b"mock database content"
+        monkeypatch.setattr(requests, "get", lambda url: mock_response)
+        
+        # 一時ファイルの書き込みをモック化
+        mock_open = mock.mock_open()
+        monkeypatch.setattr("builtins.open", mock_open)
+        
+        # 関数を実行
+        db_path = hellomeg.download_database()
+        
+        # 結果を確認
+        assert db_path is not None
+        mock_open.assert_called_once()
+        mock_open().write.assert_called_once_with(b"mock database content")
+
+    def test_get_images_from_db(self, monkeypatch):
+        """get_images_from_db関数のテスト"""
+        # sqlite3の接続とカーソルをモック化
+        mock_conn = mock.MagicMock()
+        mock_cursor = mock.MagicMock()
+        mock_conn.cursor.return_value = mock_cursor
+        
+        # fetchallの戻り値をモック化
+        mock_images = [
+            ("filepath1.png", "user1"),
+            ("filepath2.png", "user2")
         ]
-        monkeypatch.setattr(glob, "glob", lambda path: mock_png_files if "hellomeg" in path else [])
+        mock_cursor.fetchall.return_value = mock_images
+        
+        # sqlite3.connectをモック化
+        monkeypatch.setattr(sqlite3, "connect", lambda path: mock_conn)
+        
+        # 関数を実行
+        images = hellomeg.get_images_from_db("mock_db_path")
+        
+        # 結果を確認
+        assert images == mock_images
+        mock_cursor.execute.assert_called_once_with("SELECT filepath, twitter_id FROM images")
+        mock_conn.close.assert_called_once()
 
+    def test_setup_hellomeg_with_db(self, monkeypatch):
+        """データベースからの画像取得をテストするsetup_hellomeg関数のテスト"""
+        # download_databaseの戻り値をモック化
+        monkeypatch.setattr(hellomeg, "download_database", lambda: "mock_db_path")
+        
+        # get_images_from_dbの戻り値をモック化
+        mock_images = [
+            ("filepath1.png", "user1"),
+            ("filepath2.png", "user2")
+        ]
+        monkeypatch.setattr(hellomeg, "get_images_from_db", lambda path: mock_images)
+        
         # 関数を実行
         hellomeg.setup_hellomeg()
-
+        
         # グローバル変数が正しく設定されているか確認
-        assert hellomeg.hellomeg_png_filepaths == mock_png_files
-        assert len(hellomeg.hellomeg_png_filepaths) == 2
+        assert hellomeg.hellomeg_images == mock_images
+        assert len(hellomeg.hellomeg_images) == 2
 
-    def test_setup_hellomeg_empty_dir(self, monkeypatch):
-        """ディレクトリが空の場合のsetup_hellomeg関数のテスト"""
-        # glob.globの戻り値を空リストにモック化
-        monkeypatch.setattr(glob, "glob", lambda path: [])
-
+    def test_setup_hellomeg_download_failure(self, monkeypatch):
+        """データベース取得失敗時のテスト"""
+        # download_databaseの戻り値をNoneにモック化（失敗を模倣）
+        monkeypatch.setattr(hellomeg, "download_database", lambda: None)
+        
         # 関数を実行
         hellomeg.setup_hellomeg()
-
+        
         # グローバル変数が空リストに設定されているか確認
-        assert hellomeg.hellomeg_png_filepaths == []
+        assert hellomeg.hellomeg_images == []
+
+    def test_setup_hellomeg_empty_db(self, monkeypatch):
+        """データベースが空の場合のsetup_hellomeg関数のテスト"""
+        # download_databaseの戻り値をモック化
+        monkeypatch.setattr(hellomeg, "download_database", lambda: "mock_db_path")
+        
+        # get_images_from_dbの戻り値を空リストにモック化
+        monkeypatch.setattr(hellomeg, "get_images_from_db", lambda path: [])
+        
+        # glob.globの戻り値も空リストにモック化（フォールバックも空）
+        monkeypatch.setattr(glob, "glob", lambda path: [])
+        
+        # 関数を実行
+        hellomeg.setup_hellomeg()
+        
+        # グローバル変数が空リストに設定されているか確認
+        assert hellomeg.hellomeg_images == []
 
     def test_set_config_all_params(self):
         """全てのパラメータを指定した場合のset_config関数のテスト"""
@@ -114,15 +180,15 @@ class TestHellomeg:
         # テスト前に元の値を保存
         original_ur_probability = hellomeg.hellomeg_ur_probability
         original_sr_probability = hellomeg.hellomeg_sr_probability
-        original_png_filepaths = hellomeg.hellomeg_png_filepaths
+        original_images = hellomeg.hellomeg_images
         
         try:
             # 確率を明示的に設定して、テストの安定性を確保
             hellomeg.set_config(ur_prob=0.03, sr_prob=0.18)
             
-            # PNGファイルパスをモック化（通常レスポンスでは使用しないが、コード内で参照されるため）
+            # 画像情報をモック化（通常レスポンスでは使用しないが、コード内で参照されるため）
             mock_filepath = "assets/hellomeg/test_user/test_image.png"
-            hellomeg.hellomeg_png_filepaths = [mock_filepath]
+            hellomeg.hellomeg_images = [(mock_filepath, "test_user")]
             
             # 直接関数を作成
             async def mock_hellomeg_func(interaction):
@@ -142,21 +208,21 @@ class TestHellomeg:
                 ur_prob=original_ur_probability,
                 sr_prob=original_sr_probability
             )
-            hellomeg.hellomeg_png_filepaths = original_png_filepaths
+            hellomeg.hellomeg_images = original_images
 
     def test_register_command_ur_response(self, mock_interaction, monkeypatch):
         """URレスポンスをテスト"""
         # テスト前に元の値を保存
         original_ur_probability = hellomeg.hellomeg_ur_probability
-        original_png_filepaths = hellomeg.hellomeg_png_filepaths
+        original_images = hellomeg.hellomeg_images
         
         try:
             # 確率を明示的に設定して、テストの安定性を確保
             hellomeg.set_config(ur_prob=0.03)
             
-            # PNGファイルパスをモック化（URレスポンスでは使用しないが、コード内で参照されるため）
+            # 画像情報をモック化（URレスポンスでは使用しないが、コード内で参照されるため）
             mock_filepath = "assets/hellomeg/test_user/test_image.png"
-            hellomeg.hellomeg_png_filepaths = [mock_filepath]
+            hellomeg.hellomeg_images = [(mock_filepath, "test_user")]
             
             # random.randomの戻り値をモック化してURレスポンスになるようにする
             # 確実にURレスポンスになるよう、UR確率より小さい値を設定
@@ -197,14 +263,14 @@ class TestHellomeg:
         finally:
             # テスト後に元の値に戻す
             hellomeg.set_config(ur_prob=original_ur_probability)
-            hellomeg.hellomeg_png_filepaths = original_png_filepaths
+            hellomeg.hellomeg_images = original_images
 
     def test_register_command_sr_response(self, mock_interaction, monkeypatch):
         """SRレスポンスをテスト"""
         # テスト前に元の値を保存
         original_ur_probability = hellomeg.hellomeg_ur_probability
         original_sr_probability = hellomeg.hellomeg_sr_probability
-        original_png_filepaths = hellomeg.hellomeg_png_filepaths
+        original_images = hellomeg.hellomeg_images
         
         try:
             # 確率を明示的に設定して、テストの安定性を確保
@@ -221,13 +287,13 @@ class TestHellomeg:
             monkeypatch.setattr(random, "random", mock_random)
             
             # random.choiceをモック化
-            mock_filepath = "assets/hellomeg/test_user/test_image.png"
+            mock_image = ("assets/hellomeg/test_user/test_image.png", "test_user")
             def mock_choice(seq):
-                return mock_filepath
+                return mock_image
             monkeypatch.setattr(random, "choice", mock_choice)
             
-            # PNGファイルパスをモック化
-            hellomeg.hellomeg_png_filepaths = [mock_filepath]
+            # 画像情報をモック化
+            hellomeg.hellomeg_images = [mock_image]
             
             # discord.Fileをモック化
             mock_file = mock.MagicMock()
@@ -259,23 +325,23 @@ class TestHellomeg:
                 ur_prob=original_ur_probability,
                 sr_prob=original_sr_probability
             )
-            hellomeg.hellomeg_png_filepaths = original_png_filepaths
+            hellomeg.hellomeg_images = original_images
 
     def test_register_command_fever_mode(self, mock_interaction, monkeypatch):
         """FEVERモードのテスト"""
         # テスト前に元の値を保存
         original_fever_minute = hellomeg.hellomeg_fever_minute
         original_ur_probability = hellomeg.hellomeg_ur_probability
-        original_png_filepaths = hellomeg.hellomeg_png_filepaths
+        original_images = hellomeg.hellomeg_images
         
         try:
             # FEVERモードの分を設定
             fever_minute = 30
             hellomeg.set_config(fever_minute=fever_minute, ur_prob=0.03)
             
-            # PNGファイルパスをモック化（URレスポンスでは使用しないが、コード内で参照されるため）
+            # 画像情報をモック化（URレスポンスでは使用しないが、コード内で参照されるため）
             mock_filepath = "assets/hellomeg/test_user/test_image.png"
-            hellomeg.hellomeg_png_filepaths = [mock_filepath]
+            hellomeg.hellomeg_images = [(mock_filepath, "test_user")]
             
             # interactionのcreated_atの分をFEVER分に設定
             mock_interaction.created_at.minute = fever_minute
@@ -319,4 +385,4 @@ class TestHellomeg:
                 fever_minute=original_fever_minute,
                 ur_prob=original_ur_probability
             )
-            hellomeg.hellomeg_png_filepaths = original_png_filepaths
+            hellomeg.hellomeg_images = original_images

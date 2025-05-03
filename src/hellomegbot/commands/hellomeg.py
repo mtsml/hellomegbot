@@ -1,9 +1,11 @@
 import discord
 import random
-import glob
 import os
+import requests
+import sqlite3
+import tempfile
 
-# HELLOMEG コマンドの定数
+# HELLOMEG コマンドの定数と設定
 HELLOMEG_COMMAND_NAME = "hellomeg"
 HELLOMEG_COMMAND_DESC = "ハロめぐー！"
 HELLOMEG_MESSAGE_MEDIUM = """
@@ -61,12 +63,13 @@ HEELOMEG_MESSAGE_LARGE = """
        
      ■■
 """
-HELLOMEG_PNG_DIR = "assets/hellomeg/"
+# 外部データベースのURL
 HELLOMEG_PNG_MESSAGE = "イラスト："
 TWITTER_PROFILE_URL = "https://twitter.com/"
+HELLOMEG_DB_URL = "https://hellomeg-assets.pages.dev/data.sqlite"
 
 # グローバル変数
-hellomeg_png_filepaths = []
+hellomeg_images = []  # (filepath, twitter_id) のタプルのリスト
 hellomeg_fever_minute = 0
 hellomeg_ur_probability = 0.03
 hellomeg_sr_probability = 0.18
@@ -75,10 +78,51 @@ def log(*args):
     """ログ出力"""
     print(" | ".join(args))
 
+def download_database():
+    """SQLiteデータベースをダウンロードして一時ファイルに保存する"""
+    try:
+        temp_dir = tempfile.gettempdir()
+        db_path = os.path.join(temp_dir, "hellomeg_assets.sqlite")
+        
+        response = requests.get(HELLOMEG_DB_URL)
+        with open(db_path, 'wb') as f:
+            f.write(response.content)
+        
+        return db_path
+    except Exception as e:
+        log("Error", f"Failed to download database: {e}")
+        return None
+
+def get_images_from_db(db_path):
+    """データベースから画像情報を取得する"""
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT filepath, twitter_id FROM images")
+        images = cursor.fetchall()
+        conn.close()
+        
+        return images
+    except Exception as e:
+        log("Error", f"Failed to read database: {e}")
+        return []
+
 def setup_hellomeg():
     """hellomegコマンドの初期化を行う"""
-    global hellomeg_png_filepaths
-    hellomeg_png_filepaths = [f for f in glob.glob(os.path.join(HELLOMEG_PNG_DIR, "*", "*.png"))]
+    global hellomeg_images
+    
+    try:
+        db_path = download_database()
+        if db_path:
+            images = get_images_from_db(db_path)
+            hellomeg_images = images
+            log("Info", f"Loaded {len(images)} images from database")
+        else:
+            log("Error", "Failed to download database")
+            hellomeg_images = []
+    except Exception as e:
+        log("Error", f"Error setting up hellomeg from database: {e}")
+        hellomeg_images = []
 
 def register_command(tree):
     """ハロめぐコマンドをコマンドツリーに登録する"""
@@ -98,8 +142,7 @@ def register_command(tree):
         if rand_num < hellomeg_ur_probability:
             message = { "content": HEELOMEG_MESSAGE_LARGE }
         elif rand_num < hellomeg_ur_probability + hellomeg_sr_probability:
-            filepath = random.choice(hellomeg_png_filepaths)
-            twitter_id = filepath.split("/")[2]
+            filepath, twitter_id = random.choice(hellomeg_images)
             twiiter_profile_url = TWITTER_PROFILE_URL + twitter_id
             message = {
                 # <> で URL を囲むことで Discord で OGP が表示されなくなる

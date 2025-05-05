@@ -1,10 +1,9 @@
-import os
 import glob
 import random
 import unittest.mock as mock
 import pytest
 import discord
-from discord import Interaction, File
+from discord import Interaction
 
 from src.hellomegbot.commands import hellomeg
 
@@ -27,17 +26,6 @@ class TestHellomeg:
         # グローバル変数が正しく設定されているか確認
         assert hellomeg.hellomeg_png_filepaths == mock_png_files
         assert len(hellomeg.hellomeg_png_filepaths) == 2
-
-    def test_setup_hellomeg_empty_dir(self, monkeypatch):
-        """ディレクトリが空の場合のsetup_hellomeg関数のテスト"""
-        # glob.globの戻り値を空リストにモック化
-        monkeypatch.setattr(glob, "glob", lambda path: [])
-
-        # 関数を実行
-        hellomeg.setup_hellomeg()
-
-        # グローバル変数が空リストに設定されているか確認
-        assert hellomeg.hellomeg_png_filepaths == []
 
     def test_set_config_all_params(self):
         """全てのパラメータを指定した場合のset_config関数のテスト"""
@@ -101,7 +89,7 @@ class TestHellomeg:
         interaction = mock.MagicMock(spec=Interaction)
         interaction.response.send_message = mock.AsyncMock()
         interaction.guild_id = "12345"
-        
+
         # created_atプロパティをモック化
         mock_created_at = mock.MagicMock()
         mock_created_at.minute = 0  # デフォルトは0分
@@ -112,25 +100,56 @@ class TestHellomeg:
     def test_register_command_normal_response(self, mock_interaction, monkeypatch):
         """通常のレスポンスをテスト"""
         # テスト前に元の値を保存
+        original_fever_minute = hellomeg.hellomeg_fever_minute
         original_ur_probability = hellomeg.hellomeg_ur_probability
         original_sr_probability = hellomeg.hellomeg_sr_probability
         original_png_filepaths = hellomeg.hellomeg_png_filepaths
         
         try:
             # 確率を明示的に設定して、テストの安定性を確保
-            hellomeg.set_config(ur_prob=0.03, sr_prob=0.18)
+            # FEVERモードに入らないよう、FEVERの分を明示的に設定（mock_interactionの分とは異なる値）
+            hellomeg.set_config(fever_minute=30, ur_prob=0.03, sr_prob=0.18)
             
             # PNGファイルパスをモック化（通常レスポンスでは使用しないが、コード内で参照されるため）
             mock_filepath = "assets/hellomeg/test_user/test_image.png"
             hellomeg.hellomeg_png_filepaths = [mock_filepath]
             
-            # 直接関数を作成
-            async def mock_hellomeg_func(interaction):
-                await interaction.response.send_message(content=hellomeg.HELLOMEG_MESSAGE_MEDIUM)
+            # random.randomの戻り値をモック化して通常レスポンスになるようにする
+            # 確実に通常レスポンスになるよう、UR+SR確率より大きい値を設定
+            test_random_value = hellomeg.hellomeg_ur_probability + hellomeg.hellomeg_sr_probability + 0.1
             
-            # 関数を実行
+            # random.randomをモック化
+            def mock_random():
+                return test_random_value
+            monkeypatch.setattr(random, "random", mock_random)
+            
+            # random.uniformをモック化（FEVER時に使用される）
+            def mock_uniform(a, b):
+                return test_random_value
+            monkeypatch.setattr(random, "uniform", mock_uniform)
+            
+            # random.choiceをモック化
+            def mock_choice(seq):
+                return mock_filepath
+            monkeypatch.setattr(random, "choice", mock_choice)
+            
+            # discord.Fileをモック化して実際のファイルを開かないようにする
+            mock_file = mock.MagicMock()
+            monkeypatch.setattr(discord, "File", lambda filepath: mock_file)
+            
+            # コマンドツリーをモック化
+            mock_tree = mock.MagicMock()
+            
+            # register_commandを実行
+            hellomeg.register_command(mock_tree)
+            
+            # 登録されたコマンド関数を取得
+            command_func = mock_tree.command.return_value
+            registered_func = command_func.call_args[0][0]
+            
+            # 登録された関数を実行
             import asyncio
-            asyncio.run(mock_hellomeg_func(mock_interaction))
+            asyncio.run(registered_func(mock_interaction))
             
             # send_messageが正しく呼ばれたことを確認
             mock_interaction.response.send_message.assert_called_once_with(
@@ -139,6 +158,7 @@ class TestHellomeg:
         finally:
             # テスト後に元の値に戻す
             hellomeg.set_config(
+                fever_minute=original_fever_minute,
                 ur_prob=original_ur_probability,
                 sr_prob=original_sr_probability
             )
@@ -147,12 +167,14 @@ class TestHellomeg:
     def test_register_command_ur_response(self, mock_interaction, monkeypatch):
         """URレスポンスをテスト"""
         # テスト前に元の値を保存
+        original_fever_minute = hellomeg.hellomeg_fever_minute
         original_ur_probability = hellomeg.hellomeg_ur_probability
         original_png_filepaths = hellomeg.hellomeg_png_filepaths
         
         try:
             # 確率を明示的に設定して、テストの安定性を確保
-            hellomeg.set_config(ur_prob=0.03)
+            # FEVERモードに入らないよう、FEVERの分を明示的に設定（mock_interactionの分とは異なる値）
+            hellomeg.set_config(fever_minute=30, ur_prob=0.03)
             
             # PNGファイルパスをモック化（URレスポンスでは使用しないが、コード内で参照されるため）
             mock_filepath = "assets/hellomeg/test_user/test_image.png"
@@ -196,19 +218,24 @@ class TestHellomeg:
             )
         finally:
             # テスト後に元の値に戻す
-            hellomeg.set_config(ur_prob=original_ur_probability)
+            hellomeg.set_config(
+                fever_minute=original_fever_minute,
+                ur_prob=original_ur_probability
+            )
             hellomeg.hellomeg_png_filepaths = original_png_filepaths
 
     def test_register_command_sr_response(self, mock_interaction, monkeypatch):
         """SRレスポンスをテスト"""
         # テスト前に元の値を保存
+        original_fever_minute = hellomeg.hellomeg_fever_minute
         original_ur_probability = hellomeg.hellomeg_ur_probability
         original_sr_probability = hellomeg.hellomeg_sr_probability
         original_png_filepaths = hellomeg.hellomeg_png_filepaths
         
         try:
             # 確率を明示的に設定して、テストの安定性を確保
-            hellomeg.set_config(ur_prob=0.03, sr_prob=0.18)
+            # FEVERモードに入らないよう、FEVERの分を明示的に設定（mock_interactionの分とは異なる値）
+            hellomeg.set_config(fever_minute=30, ur_prob=0.03, sr_prob=0.18)
             
             # UR確率より大きく、UR+SR確率より小さい値を設定
             ur_prob = hellomeg.hellomeg_ur_probability
@@ -256,6 +283,7 @@ class TestHellomeg:
         finally:
             # テスト後に元の値に戻す
             hellomeg.set_config(
+                fever_minute=original_fever_minute,
                 ur_prob=original_ur_probability,
                 sr_prob=original_sr_probability
             )

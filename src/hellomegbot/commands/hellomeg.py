@@ -114,7 +114,7 @@ def register_command(tree):
 def set_config(fever_minute=None, ur_prob=None, sr_prob=None):
     """設定値を更新する"""
     global hellomeg_fever_minute, hellomeg_ur_probability, hellomeg_sr_probability
-    
+
     if fever_minute is not None:
         hellomeg_fever_minute = fever_minute
     if ur_prob is not None:

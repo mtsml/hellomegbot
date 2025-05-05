@@ -1,7 +1,6 @@
 import discord
 import random
 import os
-import sqlite3
 import requests
 import tempfile
 
@@ -70,67 +69,35 @@ HEELOMEG_MESSAGE_LARGE = """
 HELLOMEG_PNG_DIR = "assets/hellomeg/"
 HELLOMEG_PNG_MESSAGE = "イラスト："
 TWITTER_PROFILE_URL = "https://twitter.com/"
-HELLOMEG_DB_URL = "https://hellomeg-assets.pages.dev/data.sqlite"
+HELLOMEG_JSON_URL = "https://hellomeg-assets.pages.dev/public/hellomegbot/hellomeg.json"
 
 # グローバル変数
 hellomeg_images = []  # {filepath, twitter_id} のリスト
 hellomeg_fever_minute = 0
 hellomeg_ur_probability = 0.03
 hellomeg_sr_probability = 0.18
-hellomeg_db_path = None
 
-def download_db():
-    """SQLiteデータベースをダウンロードして一時ファイルとして保存する"""
-    global hellomeg_db_path
-    
-    try:
-        # データベースをダウンロード
-        response = requests.get(HELLOMEG_DB_URL)
-        response.raise_for_status()
-        
-        # 一時ファイルを作成
-        temp_db = tempfile.NamedTemporaryFile(delete=False, suffix='.sqlite')
-        temp_db.write(response.content)
-        temp_db.close()
-        
-        hellomeg_db_path = temp_db.name
-        log("SQLite database downloaded to", hellomeg_db_path)
-        return True
-    except Exception as e:
-        log("Error downloading SQLite database:", str(e))
-        return False
-
-def load_images_from_db():
-    """データベースから画像情報を読み込む"""
+def load_images_from_json():
+    """JSONファイルから画像情報を読み込む"""
     global hellomeg_images
     
-    if not hellomeg_db_path:
-        log("Database path not set")
-        return False
-    
     try:
-        conn = sqlite3.connect(hellomeg_db_path)
-        cursor = conn.cursor()
+        # JSONファイルをダウンロード
+        response = requests.get(HELLOMEG_JSON_URL)
+        response.raise_for_status()
         
-        # imagesテーブルからデータを取得
-        cursor.execute("SELECT filepath, twitter_id FROM images")
-        rows = cursor.fetchall()
-        
-        hellomeg_images = [{"filepath": row[0], "twitter_id": row[1]} for row in rows]
-        log(f"Loaded {len(hellomeg_images)} images from database")
-        
-        conn.close()
+        # JSONをパース
+        hellomeg_images = response.json()
+        log(f"Loaded {len(hellomeg_images)} images from JSON")
         return True
     except Exception as e:
-        log("Error loading images from database:", str(e))
+        log("Error loading images from JSON:", str(e))
         return False
 
 def setup_hellomeg():
     """hellomegコマンドの初期化を行う"""
-    # SQLiteデータベースをダウンロード
-    if download_db():
-        # データベースから画像情報を読み込む
-        load_images_from_db()
+    # JSONファイルから画像情報を読み込む
+    load_images_from_json()
 
 def register_command(tree):
     """ハロめぐコマンドをコマンドツリーに登録する"""

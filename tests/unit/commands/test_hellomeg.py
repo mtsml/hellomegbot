@@ -4,7 +4,6 @@ import unittest.mock as mock
 import pytest
 import discord
 import requests
-import sqlite3
 import tempfile
 from discord import Interaction
 
@@ -14,114 +13,57 @@ from src.hellomegbot.commands import hellomeg
 class TestHellomeg:
     """hellomeg.py のテストクラス"""
 
-    def test_download_db_success(self, monkeypatch):
-        """download_db関数の成功ケースのテスト"""
+    def test_load_images_from_json_success(self, monkeypatch):
+        """load_images_from_json関数の成功ケースのテスト"""
         # requestsのレスポンスをモック化
         mock_response = mock.MagicMock()
         mock_response.raise_for_status = mock.MagicMock()
-        mock_response.content = b"mock_db_content"
-        monkeypatch.setattr(requests, "get", lambda url: mock_response)
+        mock_response.json.return_value = [
+            {"filepath": "images/user1/image1.png", "twitter_id": "user1"},
+            {"filepath": "images/user2/image2.png", "twitter_id": "user2"}
+        ]
         
-        # tempfileをモック化
-        mock_temp_file = mock.MagicMock()
-        mock_temp_file.name = "/tmp/mock_db.sqlite"
-        monkeypatch.setattr(tempfile, "NamedTemporaryFile", lambda delete, suffix: mock_temp_file)
+        # requests.getをモック化
+        mock_get = mock.MagicMock(return_value=mock_response)
+        monkeypatch.setattr(requests, "get", mock_get)
         
         # 関数を実行
-        result = hellomeg.download_db()
+        result = hellomeg.load_images_from_json()
         
         # 結果を確認
         assert result is True
-        assert hellomeg.hellomeg_db_path == "/tmp/mock_db.sqlite"
-        mock_temp_file.write.assert_called_once_with(b"mock_db_content")
-        mock_temp_file.close.assert_called_once()
+        assert len(hellomeg.hellomeg_images) == 2
+        assert hellomeg.hellomeg_images[0]["filepath"] == "images/user1/image1.png"
+        assert hellomeg.hellomeg_images[0]["twitter_id"] == "user1"
+        assert hellomeg.hellomeg_images[1]["filepath"] == "images/user2/image2.png"
+        assert hellomeg.hellomeg_images[1]["twitter_id"] == "user2"
+        
+        # 正しいURLでリクエストが行われたことを確認
+        mock_get.assert_called_once_with(hellomeg.HELLOMEG_JSON_URL)
 
-    def test_download_db_failure(self, monkeypatch):
-        """download_db関数の失敗ケースのテスト"""
+    def test_load_images_from_json_failure(self, monkeypatch):
+        """load_images_from_json関数の失敗ケースのテスト"""
         # requestsのレスポンスをモック化して例外を発生させる
         def mock_get(url):
             raise requests.exceptions.RequestException("Mock error")
         monkeypatch.setattr(requests, "get", mock_get)
         
         # 関数を実行
-        result = hellomeg.download_db()
+        result = hellomeg.load_images_from_json()
         
         # 結果を確認
         assert result is False
 
-    def test_load_images_from_db_success(self, monkeypatch):
-        """load_images_from_db関数の成功ケースのテスト"""
-        # SQLite接続をモック化
-        mock_conn = mock.MagicMock()
-        mock_cursor = mock.MagicMock()
-        mock_conn.cursor.return_value = mock_cursor
-        monkeypatch.setattr(sqlite3, "connect", lambda path: mock_conn)
-        
-        # カーソルの結果をモック化
-        mock_cursor.fetchall.return_value = [
-            ("assets/hellomeg/user1/image1.png", "user1"),
-            ("assets/hellomeg/user2/image2.png", "user2")
-        ]
-        
-        # データベースパスを設定
-        hellomeg.hellomeg_db_path = "/tmp/mock_db.sqlite"
-        
-        # 関数を実行
-        result = hellomeg.load_images_from_db()
-        
-        # 結果を確認
-        assert result is True
-        assert len(hellomeg.hellomeg_images) == 2
-        assert hellomeg.hellomeg_images[0]["filepath"] == "assets/hellomeg/user1/image1.png"
-        assert hellomeg.hellomeg_images[0]["twitter_id"] == "user1"
-        assert hellomeg.hellomeg_images[1]["filepath"] == "assets/hellomeg/user2/image2.png"
-        assert hellomeg.hellomeg_images[1]["twitter_id"] == "user2"
-        
-        # 接続とクエリが正しく呼ばれたことを確認
-        mock_conn.cursor.assert_called_once()
-        mock_cursor.execute.assert_called_once_with("SELECT filepath, twitter_id FROM images")
-        mock_conn.close.assert_called_once()
-
-    def test_load_images_from_db_no_path(self):
-        """load_images_from_db関数のデータベースパスがない場合のテスト"""
-        # データベースパスをクリア
-        hellomeg.hellomeg_db_path = None
-        
-        # 関数を実行
-        result = hellomeg.load_images_from_db()
-        
-        # 結果を確認
-        assert result is False
-
-    def test_load_images_from_db_failure(self, monkeypatch):
-        """load_images_from_db関数の失敗ケースのテスト"""
-        # SQLite接続をモック化して例外を発生させる
-        def mock_connect(path):
-            raise sqlite3.Error("Mock error")
-        monkeypatch.setattr(sqlite3, "connect", mock_connect)
-        
-        # データベースパスを設定
-        hellomeg.hellomeg_db_path = "/tmp/mock_db.sqlite"
-        
-        # 関数を実行
-        result = hellomeg.load_images_from_db()
-        
-        # 結果を確認
-        assert result is False
-
-    def test_setup_hellomeg_db_success(self, monkeypatch):
-        """setup_hellomeg関数のデータベース成功ケースのテスト"""
-        # download_dbをモック化して成功を返す
-        monkeypatch.setattr(hellomeg, "download_db", lambda: True)
-        
-        # load_images_from_dbをモック化して成功を返す
-        def mock_load_from_db():
+    def test_setup_hellomeg_success(self, monkeypatch):
+        """setup_hellomeg関数の成功ケースのテスト"""
+        # load_images_from_jsonをモック化して成功を返す
+        def mock_load_from_json():
             hellomeg.hellomeg_images = [
-                {"filepath": "assets/hellomeg/user1/image1.png", "twitter_id": "user1"},
-                {"filepath": "assets/hellomeg/user2/image2.png", "twitter_id": "user2"}
+                {"filepath": "images/user1/image1.png", "twitter_id": "user1"},
+                {"filepath": "images/user2/image2.png", "twitter_id": "user2"}
             ]
             return True
-        monkeypatch.setattr(hellomeg, "load_images_from_db", mock_load_from_db)
+        monkeypatch.setattr(hellomeg, "load_images_from_json", mock_load_from_json)
         
         # 関数を実行
         hellomeg.setup_hellomeg()

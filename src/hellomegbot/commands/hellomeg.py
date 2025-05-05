@@ -2,7 +2,9 @@ import discord
 import random
 import os
 import requests
-import tempfile
+import io
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
 
 def log(*args):
     """ログ出力"""
@@ -76,6 +78,7 @@ hellomeg_images = []  # {filepath, twitter_id} のリスト
 hellomeg_fever_minute = 0
 hellomeg_ur_probability = 0.03
 hellomeg_sr_probability = 0.18
+image_data = {}  # メモリ上に保存された画像のバイナリデータを保持する辞書
 
 def load_images_from_json():
     """JSONファイルから画像情報を読み込む"""
@@ -94,10 +97,50 @@ def load_images_from_json():
         log("Error loading images from JSON:", str(e))
         return False
 
+def download_image(image):
+    """1つの画像をダウンロードする関数"""
+    filepath = image["filepath"]
+    twitter_id = image["twitter_id"]
+    
+    try:
+        # 画像URLを構築
+        image_url = f"https://hellomeg-assets.pages.dev/{filepath}"
+        
+        # 画像をダウンロード
+        response = requests.get(image_url)
+        response.raise_for_status()
+        
+        # キーを生成
+        key = f"{filepath}_{twitter_id}"
+        
+        log(f"Loaded image into memory: {filepath}")
+        return key, response.content
+    except Exception as e:
+        log(f"Error loading image {filepath}:", str(e))
+        return None
+
+def load_all_images():
+    """すべての画像を並列にダウンロードしてメモリに保存する"""
+    global image_data
+    
+    # スレッドプールを作成
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        # 並列でダウンロードを実行
+        future_to_image = {executor.submit(download_image, image): image for image in hellomeg_images}
+        
+        # 結果を収集
+        for future in concurrent.futures.as_completed(future_to_image):
+            result = future.result()
+            if result:
+                key, content = result
+                image_data[key] = content
+
 def setup_hellomeg():
     """hellomegコマンドの初期化を行う"""
     # JSONファイルから画像情報を読み込む
-    load_images_from_json()
+    if load_images_from_json():
+        # すべての画像をメモリにロード
+        load_all_images()
 
 def register_command(tree):
     """ハロめぐコマンドをコマンドツリーに登録する"""
@@ -123,28 +166,28 @@ def register_command(tree):
                 twitter_id = image["twitter_id"]
                 twitter_profile_url = TWITTER_PROFILE_URL + twitter_id
                 
-                try:
-                    # 画像URLを構築
-                    image_url = f"https://hellomeg-assets.pages.dev/{filepath}"
+                # キーを生成
+                key = f"{filepath}_{twitter_id}"
+                
+                if key in image_data:
+                    # メモリ上の画像データを使用
+                    img_binary = image_data[key]
                     
-                    # 画像をダウンロード
-                    response = requests.get(image_url)
-                    response.raise_for_status()
+                    # バイナリデータからファイルライクオブジェクトを作成
+                    img_file = io.BytesIO(img_binary)
+                    img_file.seek(0)
                     
-                    # 一時ファイルを作成
-                    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-                    temp_file.write(response.content)
-                    temp_file.close()
+                    # ファイル名を取得（パスの最後の部分）
+                    filename = os.path.basename(filepath)
                     
-                    # 一時ファイルを使用
                     message = {
                         # <> で URL を囲むことで Discord で OGP が表示されなくなる
                         "content": f"{HELLOMEG_PNG_MESSAGE}[@{twitter_id}](<{twitter_profile_url}>)",
-                        "file": discord.File(temp_file.name)
+                        "file": discord.File(fp=img_file, filename=filename)
                     }
-                except Exception as e:
-                    log("Error downloading image:", str(e))
-                    # 画像のダウンロードに失敗した場合はテキストで返す
+                else:
+                    # 画像データがない場合はテキストで返す
+                    log(f"Image data not found for {key}")
                     message = { "content": HELLOMEG_MESSAGE_MEDIUM }
             else:
                 # 画像が読み込めなかった場合はテキストで返す

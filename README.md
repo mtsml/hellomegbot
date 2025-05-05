@@ -1,18 +1,5 @@
 # hellomegbot
 ![Python Tests](https://github.com/mtsml/hellomegbot/actions/workflows/python-tests.yml/badge.svg)
-### Usage
-1. 環境変数 `DISCORD_BOT_TOKEN` を設定
-    ```bash
-    echo "DISCORD_BOT_TOKEN=discord_bot_token" >> .env
-    ```
-2. ライブラリをインストール
-    ```bash
-    pip install -r requirements.txt
-    ```
-3. 起動
-    ```bash
-    python main.py
-    ```
 
 ### Development
 
@@ -20,6 +7,12 @@
 ```bash
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
+echo "DISCORD_BOT_TOKEN=discord_bot_token" >> .env
+```
+
+#### Serve Local
+```bash
+python main.py
 ```
 
 #### Running Tests
@@ -43,7 +36,3 @@ pytest tests/unit/commands/test_hellomeg.py
   1. リポジトリの "Actions" タブに移動
   2. 左側のサイドバーから "Python Tests" ワークフローを選択
   3. "Run workflow" ボタンをクリック
-  4. 以下のオプションを設定可能:
-     - `Python version`: テストするPythonバージョン（カンマ区切りで複数指定可能、例: `3.8,3.9`）
-     - `Skip coverage`: カバレッジレポート生成をスキップするかどうか
-  5. "Run workflow" をクリック

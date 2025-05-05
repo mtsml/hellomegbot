@@ -1,5 +1,5 @@
 # hellomegbot
-![Python Tests](https://github.com/username/hellomegbot/actions/workflows/python-tests.yml/badge.svg)
+![Python Tests](https://github.com/mtsml/hellomegbot/actions/workflows/python-tests.yml/badge.svg)
 ### Usage
 1. 環境変数 `DISCORD_BOT_TOKEN` を設定
     ```bash

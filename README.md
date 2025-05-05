@@ -33,3 +33,17 @@ pytest --cov=src/ tests/
 # Run specific test file
 pytest tests/unit/commands/test_hellomeg.py
 ```
+
+#### GitHub Actions
+
+このプロジェクトはGitHub Actionsを使用して自動テストを実行します。
+
+- プッシュやプルリクエスト時に自動的にテストが実行されます
+- GitHub UIから手動でテストを実行することも可能です:
+  1. リポジトリの "Actions" タブに移動
+  2. 左側のサイドバーから "Python Tests" ワークフローを選択
+  3. "Run workflow" ボタンをクリック
+  4. 以下のオプションを設定可能:
+     - `Python version`: テストするPythonバージョン（カンマ区切りで複数指定可能、例: `3.8,3.9`）
+     - `Skip coverage`: カバレッジレポート生成をスキップするかどうか
+  5. "Run workflow" をクリック

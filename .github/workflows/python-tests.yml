@@ -25,7 +25,7 @@ jobs:
         # Determine the Python versions to test:
         # - If triggered by 'workflow_dispatch' and 'python-version' input is provided, parse the input as a JSON array.
         # - Otherwise, use the default Python versions [3.8, 3.9, "3.10"].
-        python-version: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.python-version != '' && fromJSON('[' + github.event.inputs.python-version + ']') || fromJSON('[3.8, 3.9, "3.10"]') }}
+        python-version: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.python-version != '' && fromJSON('[' + github.event.inputs.python-version + ']') || fromJSON('["3.8", "3.9", "3.10"]') }}
 
     steps:
     - uses: actions/checkout@v3

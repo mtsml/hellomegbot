@@ -6,26 +6,13 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:  # 手動実行を可能にする
-    inputs:
-      python-version:
-        description: 'Python version to test (comma-separated for multiple, leave empty for all)'
-        required: false
-        default: ''
-      skip-coverage:
-        description: 'Skip coverage report generation (true/false)'
-        required: false
-        default: 'false'
-        type: boolean
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # Determine the Python versions to test:
-        # - If triggered by 'workflow_dispatch' and 'python-version' input is provided, parse the input as a JSON array.
-        # - Otherwise, use the default Python versions [3.8, 3.9, "3.10"].
-        python-version: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.python-version != '' && fromJSON('[' + github.event.inputs.python-version + ']') || fromJSON('["3.8", "3.9", "3.10"]') }}
+        python-version: [3.9]
 
     steps:
     - uses: actions/checkout@v3
@@ -46,12 +33,10 @@ jobs:
         pytest tests/ -v
     
     - name: Generate coverage report
-      if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip-coverage != 'true' }}
       run: |
         pytest --cov=src/ tests/ --cov-report=xml
     
     - name: Upload coverage to Codecov
-      if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip-coverage != 'true' }}
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml

@@ -172,12 +172,16 @@ class MmmMmMmmmmmmm(GachaBase):
         ur_probability,
         sr_probability,
     ):
+        kwargs = {}
+        if ur_probability is not None:
+            kwargs["ur_probability"] = ur_probability
+        if sr_probability is not None:
+            kwargs["sr_probability"] = sr_probability
         super().__init__(
             command_name=MMM_MM_MMMMMMMM_COMMAND_NAME,
             command_description=MMM_MM_MMMMMMMM_COMMAND_DESC,
             message_medium=MMM_MM_MMMMMMMM_MESSAGE_MEDIUM,
             message_large=MMM_MM_MMMMMMMM_MESSAGE_LARGE,
             json_url=MMM_MM_MMMMMMMM_JSON_URL,
-            ur_probability=ur_probability,
-            sr_probability=sr_probability,
+            **kwargs,
         )

@@ -68,12 +68,16 @@ class HelloRuri(GachaBase):
         ur_probability,
         sr_probability,
     ):
+        kwargs = {}
+        if ur_probability is not None:
+            kwargs["ur_probability"] = ur_probability
+        if sr_probability is not None:
+            kwargs["sr_probability"] = sr_probability
         super().__init__(
             command_name=HELLORURI_COMMAND_NAME,
             command_description=HELLORURI_COMMAND_DESC,
             message_medium=HELLORURI_MESSAGE_MEDIUM,
             message_large=HELLORURI_MESSAGE_LARGE,
             json_url=HELLORURI_JSON_URL,
-            ur_probability=ur_probability,
-            sr_probability=sr_probability,
+            **kwargs,
         )

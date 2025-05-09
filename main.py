@@ -203,12 +203,16 @@ if __name__ == "__main__":
     hellomeg.register_command(tree)
 
     # /helloruri
-    helloruri = HelloRuri()
+    helloruri_ur_probability = float(os.getenv("HELLORURI_UR_PROBABILITY")) if os.getenv("HELLORURI_UR_PROBABILITY") else None
+    helloruri_sr_probability = float(os.getenv("HELLORURI_SR_PROBABILITY")) if os.getenv("HELLORURI_SR_PROBABILITY") else None
+    helloruri = HelloRuri(helloruri_ur_probability, helloruri_sr_probability)
     helloruri.setup()
     helloruri.register_command(tree)
 
     # /mmm-mm-mmmmmmmm
-    mmm_mm_mmmmmmmm = MmmMmMmmmmmmm()
+    mmm_mm_mmmmmmmm_ur_probability = float(os.getenv("MMM_MM_MMMMMMMM_UR_PROBABILITY")) if os.getenv("MMM_MM_MMMMMMMM_UR_PROBABILITY") else None
+    mmm_mm_mmmmmmmm_sr_probability = float(os.getenv("MMM_MM_MMMMMMMM_SR_PROBABILITY")) if os.getenv("MMM_MM_MMMMMMMM_SR_PROBABILITY") else None
+    mmm_mm_mmmmmmmm = MmmMmMmmmmmmm(mmm_mm_mmmmmmmm_ur_probability, mmm_mm_mmmmmmmm_sr_probability)
     mmm_mm_mmmmmmmm.setup()
     mmm_mm_mmmmmmmm.register_command(tree)
 

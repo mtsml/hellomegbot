@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 import meggen
 from src.hellomegbot.commands import hellomeg
 from src.hellomegbot.commands.helloruri import HelloRuri
+from src.hellomegbot.commands.mmm_mm_mmmmmmmm import MmmMmMmmmmmmm
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
@@ -205,6 +206,11 @@ if __name__ == "__main__":
     helloruri = HelloRuri()
     helloruri.setup()
     helloruri.register_command(tree)
+
+    # /mmm-mm-mmmmmmmm
+    mmm_mm_mmmmmmmm = MmmMmMmmmmmmm()
+    mmm_mm_mmmmmmmm.setup()
+    mmm_mm_mmmmmmmm.register_command(tree)
 
     token = os.getenv("DISCORD_BOT_TOKEN")
     client.run(token)

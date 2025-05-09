@@ -21,7 +21,7 @@ class GachaBase:
         json_url,
         fever_minute=0,
         ur_probability=0.03,
-        sr_probability=0.18
+        sr_probability=0.18,
     ):
         self.command_name = command_name
         self.command_description = command_description

@@ -63,11 +63,17 @@ HELLORURI_JSON_URL = "https://hellomeg-assets.pages.dev/public/hellomegbot/hello
 
 
 class HelloRuri(GachaBase):
-    def __init__(self):
+    def __init__(
+        self,
+        ur_probability,
+        sr_probability,
+    ):
         super().__init__(
             command_name=HELLORURI_COMMAND_NAME,
             command_description=HELLORURI_COMMAND_DESC,
             message_medium=HELLORURI_MESSAGE_MEDIUM,
             message_large=HELLORURI_MESSAGE_LARGE,
-            json_url=HELLORURI_JSON_URL
+            json_url=HELLORURI_JSON_URL,
+            ur_probability=ur_probability,
+            sr_probability=sr_probability,
         )

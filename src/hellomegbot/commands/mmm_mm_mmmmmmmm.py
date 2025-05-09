@@ -167,12 +167,17 @@ MMM_MM_MMMMMMMM_JSON_URL = "https://hellomeg-assets.pages.dev/public/hellomegbot
 
 
 class MmmMmMmmmmmmm(GachaBase):
-    def __init__(self):
+    def __init__(
+        self,
+        ur_probability,
+        sr_probability,
+    ):
         super().__init__(
             command_name=MMM_MM_MMMMMMMM_COMMAND_NAME,
             command_description=MMM_MM_MMMMMMMM_COMMAND_DESC,
             message_medium=MMM_MM_MMMMMMMM_MESSAGE_MEDIUM,
             message_large=MMM_MM_MMMMMMMM_MESSAGE_LARGE,
-            ur_probability=1,
-            json_url=MMM_MM_MMMMMMMM_JSON_URL
+            json_url=MMM_MM_MMMMMMMM_JSON_URL,
+            ur_probability=ur_probability,
+            sr_probability=sr_probability,
         )

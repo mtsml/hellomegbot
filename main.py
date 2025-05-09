@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 import meggen
 from src.hellomegbot.commands import hellomeg
+from src.hellomegbot.commands.helloruri import HelloRuri
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
@@ -192,12 +193,18 @@ async def hundle_meggen(interaction: discord.Interaction, img: str) -> None:
 if __name__ == "__main__":
     load_dotenv()
 
+    # /hellomegu
     hellomeg.setup_hellomeg()
     hellomeg_fever_minute = int(os.getenv("HELLOMEG_FEVER_MINUTE", hellomeg.hellomeg_fever_minute))
     hellomeg_ur_probability = float(os.getenv("HELLOMEG_UR_PROBABILITY", hellomeg.hellomeg_ur_probability))
     hellomeg_sr_probability = float(os.getenv("HELLOMEG_SR_PROBABILITY", hellomeg.hellomeg_sr_probability))
     hellomeg.set_config(hellomeg_fever_minute, hellomeg_ur_probability, hellomeg_sr_probability)
     hellomeg.register_command(tree)
+
+    # /helloruri
+    helloruri = HelloRuri()
+    helloruri.setup()
+    helloruri.register_command(tree)
 
     token = os.getenv("DISCORD_BOT_TOKEN")
     client.run(token)

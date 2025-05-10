@@ -5,14 +5,14 @@ from src.hellomegbot.commands.mmm_mm_mmmmmmmm import (
     MMM_MM_MMMMMMMM_MESSAGE_MEDIUM,
     MMM_MM_MMMMMMMM_MESSAGE_LARGE,
     MMM_MM_MMMMMMMM_JSON_URL,
-    MmmMmMmmmmmmmm
+    MmmMmMmmmmmmm
 )
 
 class TestMmmMmMmmmmmmmm(unittest.TestCase):
     def setUp(self):
         self.ur_probability = 0.02
         self.sr_probability = 0.15
-        self.mmm = MmmMmMmmmmmmmm(self.ur_probability, self.sr_probability)
+        self.mmm = MmmMmMmmmmmmm(self.ur_probability, self.sr_probability)
 
     def test_initialization(self):
         self.assertEqual(self.mmm.command_name, MMM_MM_MMMMMMMM_COMMAND_NAME)
@@ -26,9 +26,10 @@ class TestMmmMmMmmmmmmmm(unittest.TestCase):
         self.assertEqual(self.mmm.sr_probability, self.sr_probability)
 
     def test_initialization_with_none_probabilities(self):
-        mmm = MmmMmMmmmmmmmm(None, None)
-        self.assertIsNone(mmm.ur_probability)
-        self.assertIsNone(mmm.sr_probability)
+        mmm = MmmMmMmmmmmmm(None, None)
+        # Default values from GachaBase are used when None is passed
+        self.assertEqual(mmm.ur_probability, 0.03)
+        self.assertEqual(mmm.sr_probability, 0.18)
 
 if __name__ == "__main__":
     unittest.main()

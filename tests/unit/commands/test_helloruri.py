@@ -27,8 +27,9 @@ class TestHelloRuri(unittest.TestCase):
 
     def test_initialization_with_none_probabilities(self):
         helloruri = HelloRuri(None, None)
-        self.assertIsNone(helloruri.ur_probability)
-        self.assertIsNone(helloruri.sr_probability)
+        # Default values from GachaBase are used when None is passed
+        self.assertEqual(helloruri.ur_probability, 0.03)
+        self.assertEqual(helloruri.sr_probability, 0.18)
 
 if __name__ == "__main__":
     unittest.main()

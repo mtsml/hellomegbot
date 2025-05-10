@@ -1,4 +1,4 @@
-import unittest
+import pytest
 from src.hellomegbot.commands.helloruri import HelloRuri
 from src.hellomegbot.commands.helloruri import (
     HELLORURI_COMMAND_NAME,
@@ -8,28 +8,32 @@ from src.hellomegbot.commands.helloruri import (
     HELLORURI_JSON_URL
 )
 
-class TestHelloRuri(unittest.TestCase):
-    def setUp(self):
-        self.ur_probability = 0.01
-        self.sr_probability = 0.1
-        self.helloruri = HelloRuri(self.ur_probability, self.sr_probability)
+class TestHelloRuri:
+    @pytest.fixture
+    def ur_probability(self):
+        return 0.01
+        
+    @pytest.fixture
+    def sr_probability(self):
+        return 0.1
+        
+    @pytest.fixture
+    def helloruri(self, ur_probability, sr_probability):
+        return HelloRuri(ur_probability, sr_probability)
 
-    def test_initialization(self):
-        self.assertEqual(self.helloruri.command_name, HELLORURI_COMMAND_NAME)
-        self.assertEqual(self.helloruri.command_description, HELLORURI_COMMAND_DESC)
-        self.assertEqual(self.helloruri.message_medium.strip(), HELLORURI_MESSAGE_MEDIUM.strip())
-        self.assertEqual(self.helloruri.message_large.strip(), HELLORURI_MESSAGE_LARGE.strip())
-        self.assertEqual(self.helloruri.json_url, HELLORURI_JSON_URL)
+    def test_initialization(self, helloruri):
+        assert helloruri.command_name == HELLORURI_COMMAND_NAME
+        assert helloruri.command_description == HELLORURI_COMMAND_DESC
+        assert helloruri.message_medium.strip() == HELLORURI_MESSAGE_MEDIUM.strip()
+        assert helloruri.message_large.strip() == HELLORURI_MESSAGE_LARGE.strip()
+        assert helloruri.json_url == HELLORURI_JSON_URL
 
-    def test_probabilities(self):
-        self.assertEqual(self.helloruri.ur_probability, self.ur_probability)
-        self.assertEqual(self.helloruri.sr_probability, self.sr_probability)
+    def test_probabilities(self, helloruri, ur_probability, sr_probability):
+        assert helloruri.ur_probability == ur_probability
+        assert helloruri.sr_probability == sr_probability
 
     def test_initialization_with_none_probabilities(self):
         helloruri = HelloRuri(None, None)
         # Default values from GachaBase are used when None is passed
-        self.assertEqual(helloruri.ur_probability, 0.03)
-        self.assertEqual(helloruri.sr_probability, 0.18)
-
-if __name__ == "__main__":
-    unittest.main()
+        assert helloruri.ur_probability == 0.03
+        assert helloruri.sr_probability == 0.18

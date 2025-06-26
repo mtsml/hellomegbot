@@ -8,7 +8,7 @@ import discord
 from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont
 
-from .services import meggen
+from .services import meggen, HelloRuriService, MmmMmMmmmmmmmService
 from .commands import hellomeg
 from .commands.helloruri import HelloRuri
 from .commands.mmm_mm_mmmmmmmm import MmmMmMmmmmmmm
@@ -203,16 +203,20 @@ if __name__ == "__main__":
     hellomeg.register_command(tree)
 
     # /helloruri
-    helloruri_ur_probability = float(os.getenv("HELLORURI_UR_PROBABILITY")) if os.getenv("HELLORURI_UR_PROBABILITY") else None
-    helloruri_sr_probability = float(os.getenv("HELLORURI_SR_PROBABILITY")) if os.getenv("HELLORURI_SR_PROBABILITY") else None
-    helloruri = HelloRuri(helloruri_ur_probability, helloruri_sr_probability)
+    helloruri_service = HelloRuriService(
+        ur_probability=float(os.getenv("HELLORURI_UR_PROBABILITY", "0.03")),
+        sr_probability=float(os.getenv("HELLORURI_SR_PROBABILITY", "0.18"))
+    )
+    helloruri = HelloRuri(service=helloruri_service)
     helloruri.setup()
     helloruri.register_command(tree)
 
     # /mmm-mm-mmmmmmmm
-    mmm_mm_mmmmmmmm_ur_probability = float(os.getenv("MMM_MM_MMMMMMMM_UR_PROBABILITY")) if os.getenv("MMM_MM_MMMMMMMM_UR_PROBABILITY") else None
-    mmm_mm_mmmmmmmm_sr_probability = float(os.getenv("MMM_MM_MMMMMMMM_SR_PROBABILITY")) if os.getenv("MMM_MM_MMMMMMMM_SR_PROBABILITY") else None
-    mmm_mm_mmmmmmmm = MmmMmMmmmmmmm(mmm_mm_mmmmmmmm_ur_probability, mmm_mm_mmmmmmmm_sr_probability)
+    mmm_service = MmmMmMmmmmmmmService(
+        ur_probability=float(os.getenv("MMM_MM_MMMMMMMM_UR_PROBABILITY", "0.012345679")),
+        sr_probability=float(os.getenv("MMM_MM_MMMMMMMM_SR_PROBABILITY", "0.18"))
+    )
+    mmm_mm_mmmmmmmm = MmmMmMmmmmmmm(service=mmm_service)
     mmm_mm_mmmmmmmm.setup()
     mmm_mm_mmmmmmmm.register_command(tree)
 

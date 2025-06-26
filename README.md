@@ -1,21 +1,21 @@
 # hellomegbot
 ![Python Tests](https://github.com/mtsml/hellomegbot/actions/workflows/python-tests.yml/badge.svg)
 
-### Development
+## Development
 
-#### Setup Development Environment
+### Setup Development Environment
 ```bash
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 echo "DISCORD_BOT_TOKEN=discord_bot_token" >> .env
 ```
 
-#### Serve Local
+### Run Bot
 ```bash
 python main.py
 ```
 
-#### Running Tests
+### Running Tests
 ```bash
 # Run all tests
 pytest tests/
@@ -23,16 +23,50 @@ pytest tests/
 # Run tests with coverage report
 pytest --cov=src/ tests/
 
-# Run specific test file
-pytest tests/unit/commands/test_hellomeg.py
+# Run unit tests only
+pytest tests/unit/
+
+# Run integration tests only
+pytest tests/integration/
 ```
 
-#### GitHub Actions
+## Project Structure
 
-このプロジェクトはGitHub Actionsを使用して自動テストを実行します。
+### Source Code
+```
+src/
+└── hellomegbot/
+    ├── main.py            # Bot entry point
+    ├── commands/          # Discord command handlers
+    ├── services/          # Business logic & data management
+    └── utils/            # Utilities
+```
 
-- プッシュやプルリクエスト時に自動的にテストが実行されます
-- GitHub UIから手動でテストを実行することも可能です:
-  1. リポジトリの "Actions" タブに移動
-  2. 左側のサイドバーから "Python Tests" ワークフローを選択
-  3. "Run workflow" ボタンをクリック
+### Tests
+```
+tests/
+├── unit/                  # Unit tests
+│   ├── commands/          # Command logic tests
+│   └── services/          # Service logic tests
+└── integration/           # Integration tests
+    └── test_bot.py        # End-to-end bot tests
+```
+
+## Test Strategy
+
+### Unit Tests
+- **Target**: Business logic without Discord dependencies
+- **Characteristics**: Fast execution, isolated, mockable
+- **Coverage**: Gacha probability, image selection, message generation
+
+### Integration Tests
+- **Target**: Discord integration and command flow
+- **Characteristics**: Mocked Discord objects, async testing
+- **Coverage**: Command registration, interaction handling, error cases
+
+## GitHub Actions
+
+Automated tests run on:
+- Every push
+- Pull requests
+- Manual trigger via Actions tab

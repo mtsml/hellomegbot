@@ -12,7 +12,7 @@ echo "DISCORD_BOT_TOKEN=discord_bot_token" >> .env
 
 ### Run Bot
 ```bash
-python main.py
+python -m src.hellomegbot.main
 ```
 
 ### Running Tests

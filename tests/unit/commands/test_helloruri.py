@@ -1,6 +1,6 @@
 import pytest
-from src.hellomegbot.commands.helloruri import HelloRuri
-from src.hellomegbot.commands.helloruri import (
+from hellomegbot.commands.helloruri import HelloRuri
+from hellomegbot.commands.helloruri import (
     HELLORURI_COMMAND_NAME,
     HELLORURI_COMMAND_DESC,
     HELLORURI_MESSAGE_MEDIUM,

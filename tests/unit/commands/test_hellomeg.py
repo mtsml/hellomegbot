@@ -10,7 +10,7 @@ import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 from discord import Interaction
 
-from src.hellomegbot.commands import hellomeg
+from hellomegbot.commands import hellomeg
 
 
 class TestHellomeg:

@@ -1,5 +1,5 @@
 import pytest
-from src.hellomegbot.commands.mmm_mm_mmmmmmmm import (
+from hellomegbot.commands.mmm_mm_mmmmmmmm import (
     MMM_MM_MMMMMMMM_COMMAND_NAME,
     MMM_MM_MMMMMMMM_COMMAND_DESC,
     MMM_MM_MMMMMMMM_MESSAGE_MEDIUM,

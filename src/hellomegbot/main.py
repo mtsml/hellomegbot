@@ -8,10 +8,10 @@ import discord
 from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont
 
-import meggen
-from src.hellomegbot.commands import hellomeg
-from src.hellomegbot.commands.helloruri import HelloRuri
-from src.hellomegbot.commands.mmm_mm_mmmmmmmm import MmmMmMmmmmmmm
+from .services import meggen
+from .commands import hellomeg
+from .commands.helloruri import HelloRuri
+from .commands.mmm_mm_mmmmmmmm import MmmMmMmmmmmmm
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)

@@ -3,11 +3,14 @@
 
 ## Development
 
-### Setup Development Environment
+### Setup
 ```bash
+# 依存関係のインストール
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
-echo "DISCORD_BOT_TOKEN=discord_bot_token" >> .env
+
+# 環境変数の設定
+echo "DISCORD_BOT_TOKEN=your_discord_bot_token" >> .env
 ```
 
 ### Run Bot
@@ -17,16 +20,16 @@ python -m src.hellomegbot.main
 
 ### Running Tests
 ```bash
-# Run all tests
+# 全テストを実行
 pytest tests/
 
-# Run tests with coverage report
+# カバレッジレポート付きでテストを実行
 pytest --cov=src/ tests/
 
-# Run unit tests only
+# ユニットテストのみ実行
 pytest tests/unit/
 
-# Run integration tests only
+# 統合テストのみ実行
 pytest tests/integration/
 ```
 
@@ -39,7 +42,7 @@ src/
     ├── main.py            # Bot entry point
     ├── commands/          # Discord command handlers
     ├── services/          # Business logic & data management
-    └── utils/            # Utilities
+    └── utils/             # Utilities
 ```
 
 ### Tests
@@ -52,21 +55,76 @@ tests/
     └── test_bot.py        # End-to-end bot tests
 ```
 
+## アーキテクチャ
+
+### クリーンアーキテクチャの採用
+
+このプロジェクトでは、ビジネスロジックと Discord インターフェースを分離したクリーンアーキテクチャを採用しています。
+
+#### サービス層（Services）
+- **責務**: ビジネスロジックの実装
+- **特徴**: Discord 依存なし、テスト容易、再利用可能
+- **例**: ガチャ確率計算、画像生成、バリデーション
+
+#### コマンド層（Commands）
+- **責務**: Discord インターフェースの処理
+- **特徴**: Discord.py 依存、ユーザー入力処理、レスポンス送信
+- **例**: スラッシュコマンド登録、インタラクション処理
+
+### 依存性注入パターン
+
+```python
+# サービスの注入例
+service = HellomegService(
+    fever_minute=0,
+    ur_probability=0.03,
+    sr_probability=0.18
+)
+command = Hellomeg(service=service)
+```
+
 ## Test Strategy
 
 ### Unit Tests
-- **Target**: Business logic without Discord dependencies
-- **Characteristics**: Fast execution, isolated, mockable
-- **Coverage**: Gacha probability, image selection, message generation
+- **対象**: Discord依存のないビジネスロジック
+- **特徴**: 高速実行、独立性、モック可能
+- **カバレッジ**: ガチャ確率、画像選択、メッセージ生成
 
 ### Integration Tests
-- **Target**: Discord integration and command flow
-- **Characteristics**: Mocked Discord objects, async testing
-- **Coverage**: Command registration, interaction handling, error cases
+- **対象**: Discord統合とコマンドフロー
+- **特徴**: Discordオブジェクトのモック、非同期テスト
+- **カバレッジ**: コマンド登録、インタラクション処理、エラーケース
 
 ## GitHub Actions
 
-Automated tests run on:
-- Every push
-- Pull requests
-- Manual trigger via Actions tab
+以下のタイミングで自動テストが実行されます：
+- プッシュ時
+- プルリクエスト作成時
+- Actionsタブからの手動実行
+
+## 開発ガイドライン
+
+### 新しいコマンドの追加
+
+1. **サービスクラスの作成** (`services/`ディレクトリ)
+   - ビジネスロジックの実装
+   - Discord依存を含めない
+
+2. **コマンドクラスの作成** (`commands/`ディレクトリ)
+   - Discordインターフェースの実装
+   - サービスクラスを使用
+
+3. **テストの作成**
+   - サービスのユニットテスト
+   - コマンドのユニットテスト
+
+4. **main.pyへの登録**
+   - サービスのインスタンス化
+   - コマンドの登録
+
+### コーディング規約
+
+- サービスとコマンドの責務を明確に分離
+- 型ヒントの使用を推奨
+- テストカバレッジ80%以上を目標
+- ドキュメント文字列の記載

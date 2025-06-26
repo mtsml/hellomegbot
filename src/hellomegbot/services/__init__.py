@@ -1,7 +1,10 @@
 from .gacha_service import GachaService, GachaResult, GachaRarity, GachaImage
 from .helloruri_service import HelloRuriService
 from .mmm_mm_mmmmmmmm_service import MmmMmMmmmmmmmService
-from . import meggen
+from .hellomeg_service import HellomegService
+from .fever_service import FeverService
+from .keibaresult_service import KeibaResultService, KeibaResult
+from .meggen_service import MeggenService
 
 __all__ = [
     "GachaService",
@@ -10,5 +13,9 @@ __all__ = [
     "GachaImage",
     "HelloRuriService",
     "MmmMmMmmmmmmmService",
-    "meggen",
+    "HellomegService",
+    "FeverService",
+    "KeibaResultService",
+    "KeibaResult",
+    "MeggenService",
 ]

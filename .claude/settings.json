@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pytest:*)",
+      "Bash(git:*)",
+      "Read(./**)",
+      "Edit(./**)"
+    ],
+    "deny": []
+  },
+"includeCoAuthoredBy": false
+}

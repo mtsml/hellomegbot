@@ -7,7 +7,7 @@ HELLOMEG_MESSAGE_MEDIUM = """
 ￣Y^Y^Y^Y^Y^Y^Y￣
 """
 
-HEELOMEG_MESSAGE_LARGE = """
+HELLOMEG_MESSAGE_LARGE = """
 ​           
    ■       
    ■   ■   

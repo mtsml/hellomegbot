@@ -1,12 +1,12 @@
-import { Rarity, buildSrResult, drawRarity } from "../../service/gacha";
+import { Rarity, buildSrResult, drawRarity } from "../../services/gacha";
 import { InteractionResponseType } from "../../libs/discord";
-import type { Env } from "../../util/env";
+import type { Env } from "../../utils/env";
 import {
   createJsonInteractionResponse,
   createMultipartInteractionResponse,
 } from "../../libs/discord";
-import { parseEnvNumber } from "../../util";
-import { joinUrl } from "../../util";
+import { parseEnvNumber } from "../../utils";
+import { joinUrl } from "../../utils";
 import {
   HELLOMEG_JSON_PATH,
   HELLOMEG_MESSAGE_NORMAL,

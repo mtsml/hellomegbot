@@ -1,50 +1,47 @@
-import { Rarity, buildSrResult, drawRarity } from "../../service/gacha";
+import { Rarity, buildSrResult, drawRarity } from "../../services/gacha";
 import { InteractionResponseType } from "../../libs/discord";
-import type { Env } from "../../util/env";
+import type { Env } from "../../utils/env";
 import {
   createJsonInteractionResponse,
   createMultipartInteractionResponse,
 } from "../../libs/discord";
-import { parseEnvNumber } from "../../util";
-import { joinUrl } from "../../util";
+import { parseEnvNumber } from "../../utils";
+import { joinUrl } from "../../utils";
 import {
-  MMM_MM_MMMMMMMM_JSON_PATH,
-  MMM_MM_MMMMMMMM_MESSAGE_NORMAL,
-  MMM_MM_MMMMMMMM_MESSAGE_UR,
-  MMM_MM_MMMMMMMM_SR_PROBABILITY_DEFAULT,
-  MMM_MM_MMMMMMMM_UR_PROBABILITY_DEFAULT,
+  HELLORURI_JSON_PATH,
+  HELLORURI_MESSAGE_NORMAL,
+  HELLORURI_MESSAGE_UR,
+  HELLORURI_SR_PROBABILITY_DEFAULT,
+  HELLORURI_UR_PROBABILITY_DEFAULT,
   SR_MESSAGE_PREFIX,
 } from "./constants";
 
-export async function mmmMmMmmmmmmmController(env: Env): Promise<Response> {
+export async function helloruriController(
+  env: Env,
+): Promise<Response> {
   const urProbability = parseEnvNumber(
-    env.MMM_MM_MMMMMMMM_UR_PROBABILITY,
-    MMM_MM_MMMMMMMM_UR_PROBABILITY_DEFAULT,
+    env.HELLORURI_UR_PROBABILITY,
+    HELLORURI_UR_PROBABILITY_DEFAULT,
   );
   const srProbability = parseEnvNumber(
-    env.MMM_MM_MMMMMMMM_SR_PROBABILITY,
-    MMM_MM_MMMMMMMM_SR_PROBABILITY_DEFAULT,
+    env.HELLORURI_SR_PROBABILITY,
+    HELLORURI_SR_PROBABILITY_DEFAULT,
   );
   const rarity = drawRarity(urProbability, srProbability);
 
   if (rarity === Rarity.UR || rarity === Rarity.NORMAL) {
     return createJsonInteractionResponse({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content:
-          rarity === Rarity.UR
-            ? MMM_MM_MMMMMMMM_MESSAGE_UR
-            : MMM_MM_MMMMMMMM_MESSAGE_NORMAL,
-      },
+      data: { content: rarity === Rarity.UR ? HELLORURI_MESSAGE_UR : HELLORURI_MESSAGE_NORMAL },
     });
   }
   const result = await buildSrResult(
-    joinUrl(env.ASSETS_BASE_URL, MMM_MM_MMMMMMMM_JSON_PATH),
+    joinUrl(env.ASSETS_BASE_URL, HELLORURI_JSON_PATH),
   );
   if (!result) {
     return createJsonInteractionResponse({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: { content: MMM_MM_MMMMMMMM_MESSAGE_NORMAL },
+      data: { content: HELLORURI_MESSAGE_NORMAL },
     });
   }
 
@@ -65,10 +62,7 @@ export async function mmmMmMmmmmmmmController(env: Env): Promise<Response> {
       },
     });
   } catch (error) {
-    console.error("mmm-mm-mmmmmmmm controller fallback", {
-      phase: "attachment",
-      error,
-    });
+    console.error("helloruri controller fallback", { phase: "attachment", error });
     return createJsonInteractionResponse({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: { content },

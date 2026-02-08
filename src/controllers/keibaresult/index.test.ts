@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DiscordCommandOption } from "../../libs/discord";
-import type { Env } from "../../util/env";
-import { KeibaResult } from "../../service/keibaresult";
+import type { Env } from "../../utils/env";
+import { KeibaResult } from "../../services/keibaresult";
 import { keibaresultController } from "./index";
-import * as keibaService from "../../service/keibaresult";
+import * as keibaService from "../../services/keibaresult";
 
-vi.mock("../../service/keibaresult", async () => {
-  const actual = await vi.importActual<typeof import("../../service/keibaresult")>(
-    "../../service/keibaresult",
+vi.mock("../../services/keibaresult", async () => {
+  const actual = await vi.importActual<typeof import("../../services/keibaresult")>(
+    "../../services/keibaresult",
   );
   return {
     ...actual,

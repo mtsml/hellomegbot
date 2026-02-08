@@ -3,11 +3,11 @@ import {
   type DiscordCommandOption,
   type DiscordModalSubmitComponent,
 } from "../../libs/discord";
-import type { Env } from "../../util/env";
+import type { Env } from "../../utils/env";
 import {
   generateMeggenPng,
   getMeggenImageConfig,
-} from "../../service/meggen";
+} from "../../services/meggen";
 import {
   createJsonInteractionResponse,
   createMultipartInteractionResponse,

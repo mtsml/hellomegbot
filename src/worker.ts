@@ -1,17 +1,17 @@
-import { keibaresultController } from "./controller/keibaresult";
-import { hellomegController } from "./controller/hellomeg";
-import { helloruriController } from "./controller/helloruri";
-import { mmmMmMmmmmmmmController } from "./controller/mmm-mm-mmmmmmmm";
-import { meggenCommandController, meggenModalController } from "./controller/meggen";
-import type { Env } from "./util/env";
+import { keibaresultController } from "./controllers/keibaresult";
+import { hellomegController } from "./controllers/hellomeg";
+import { helloruriController } from "./controllers/helloruri";
+import { mmmMmMmmmmmmmController } from "./controllers/mmm-mm-mmmmmmmm";
+import { meggenCommandController, meggenModalController } from "./controllers/meggen";
+import type { Env } from "./utils/env";
 import {
   InteractionResponseType,
   InteractionType,
 } from "./libs/discord";
 import type { DiscordInteraction } from "./libs/discord";
-import { jsonResponse } from "./util";
+import { jsonResponse } from "./utils";
 import { verifyDiscordSignature } from "./libs/discord";
-import { shouldVerifySignature, unsupported } from "./util";
+import { shouldVerifySignature, unsupported } from "./utils";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {

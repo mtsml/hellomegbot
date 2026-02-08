@@ -1,14 +1,17 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-import type { Env } from "../../util/env";
-import { Rarity } from "../../service/gacha";
-import { hellomegController } from "./index";
-import * as gachaService from "../../service/gacha";
-import { HELLOMEG_MESSAGE_NORMAL, HELLOMEG_MESSAGE_UR } from "./constants";
+import type { Env } from "../../utils/env";
+import { Rarity } from "../../services/gacha";
+import { mmmMmMmmmmmmmController } from "./index";
+import * as gachaService from "../../services/gacha";
+import {
+  MMM_MM_MMMMMMMM_MESSAGE_NORMAL,
+  MMM_MM_MMMMMMMM_MESSAGE_UR,
+} from "./constants";
 
-vi.mock("../../service/gacha", async () => {
-  const actual = await vi.importActual<typeof import("../../service/gacha")>(
-    "../../service/gacha",
+vi.mock("../../services/gacha", async () => {
+  const actual = await vi.importActual<typeof import("../../services/gacha")>(
+    "../../services/gacha",
   );
   return {
     ...actual,
@@ -22,8 +25,8 @@ function createEnv(overrides?: Partial<Env>): Env {
     ASSETS: { fetch: vi.fn() },
     ASSETS_BASE_URL: "https://cdn.example.com",
     DISCORD_PUBLIC_KEY: "pub",
-    HELLOMEG_UR_PROBABILITY: "0.11",
-    HELLOMEG_SR_PROBABILITY: "0.22",
+    MMM_MM_MMMMMMMM_UR_PROBABILITY: "0.11",
+    MMM_MM_MMMMMMMM_SR_PROBABILITY: "0.22",
     ...overrides,
   };
 }
@@ -33,17 +36,17 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-describe("hellomegController", () => {
-  it("returns JSON with UR large message", async () => {
+describe("mmmMmMmmmmmmmController", () => {
+  it("returns JSON with UR message", async () => {
     vi.mocked(gachaService.drawRarity).mockReturnValue(Rarity.UR);
 
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const response = await hellomegController(createEnv());
+    const response = await mmmMmMmmmmmmmController(createEnv());
     const payload = await response.json();
 
-    expect(payload.data.content).toBe(HELLOMEG_MESSAGE_UR);
+    expect(payload.data.content).toBe(MMM_MM_MMMMMMMM_MESSAGE_UR);
     expect(response.headers.get("content-type")).toContain("application/json");
     expect(gachaService.drawRarity).toHaveBeenCalledWith(0.11, 0.22);
     expect(gachaService.buildSrResult).not.toHaveBeenCalled();
@@ -54,17 +57,17 @@ describe("hellomegController", () => {
     vi.mocked(gachaService.drawRarity).mockReturnValue(Rarity.SR);
     vi.mocked(gachaService.buildSrResult).mockResolvedValue(null);
 
-    const response = await hellomegController(createEnv());
+    const response = await mmmMmMmmmmmmmController(createEnv());
     const payload = await response.json();
 
-    expect(payload.data.content).toBe(HELLOMEG_MESSAGE_NORMAL);
+    expect(payload.data.content).toBe(MMM_MM_MMMMMMMM_MESSAGE_NORMAL);
     expect(response.headers.get("content-type")).toContain("application/json");
   });
 
   it("returns multipart response when SR image fetch succeeds", async () => {
     vi.mocked(gachaService.drawRarity).mockReturnValue(Rarity.SR);
     vi.mocked(gachaService.buildSrResult).mockResolvedValue({
-      filepath: "public/hellomegbot/sr/sample.png",
+      filepath: "public/mmm/sr/sample.png",
       twitterId: "artist_id",
     });
 
@@ -75,12 +78,12 @@ describe("hellomegController", () => {
     );
     vi.stubGlobal("fetch", fetchSpy);
 
-    const response = await hellomegController(createEnv());
+    const response = await mmmMmMmmmmmmmController(createEnv());
     const bodyText = new TextDecoder().decode(await response.arrayBuffer());
 
     expect(response.headers.get("content-type")).toContain("multipart/form-data");
     expect(fetchSpy).toHaveBeenCalledWith(
-      "https://cdn.example.com/public/hellomegbot/sr/sample.png",
+      "https://cdn.example.com/public/mmm/sr/sample.png",
     );
     expect(bodyText).toContain('name="payload_json"');
     expect(bodyText).toContain("イラスト：[@artist_id](<https://twitter.com/artist_id>)");
@@ -90,13 +93,13 @@ describe("hellomegController", () => {
   it("falls back to JSON when SR image fetch fails", async () => {
     vi.mocked(gachaService.drawRarity).mockReturnValue(Rarity.SR);
     vi.mocked(gachaService.buildSrResult).mockResolvedValue({
-      filepath: "public/hellomegbot/sr/sample.png",
+      filepath: "public/mmm/sr/sample.png",
       twitterId: "artist_id",
     });
 
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("boom")));
 
-    const response = await hellomegController(createEnv());
+    const response = await mmmMmMmmmmmmmController(createEnv());
     const payload = await response.json();
 
     expect(payload.data.content).toBe(

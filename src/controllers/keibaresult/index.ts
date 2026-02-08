@@ -1,9 +1,9 @@
-import { KeibaResult, runKeibaResult, validateKeibaAmount } from "../../service/keibaresult";
+import { KeibaResult, runKeibaResult, validateKeibaAmount } from "../../services/keibaresult";
 import {
   InteractionResponseType,
   type DiscordCommandOption,
 } from "../../libs/discord";
-import type { Env } from "../../util/env";
+import type { Env } from "../../utils/env";
 import {
   createJsonInteractionResponse,
   createMultipartInteractionResponse,

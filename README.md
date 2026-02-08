@@ -1,130 +1,66 @@
 # hellomegbot
-![Python Tests](https://github.com/mtsml/hellomegbot/actions/workflows/python-tests.yml/badge.svg)
 
-## Development
+Discord Interactions を Cloudflare Workers で処理する bot です。
 
-### Setup
+## Setup
+
 ```bash
-# 依存関係のインストール
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# 環境変数の設定
-echo "DISCORD_BOT_TOKEN=your_discord_bot_token" >> .env
+npm i
 ```
 
-### Run Bot
+## Local
+
 ```bash
-python -m src.hellomegbot.main
+npx wrangler dev \
+  --var DISCORD_SKIP_SIGNATURE_VERIFICATION:true \
+  --var ASSETS_BASE_URL:http://127.0.0.1:8787 \
+  --var DISCORD_PUBLIC_KEY:dummy
 ```
 
-### Running Tests
+## Test
+
 ```bash
-# 全テストを実行
-pytest tests/
-
-# カバレッジレポート付きでテストを実行
-pytest --cov=src/ tests/
-
-# ユニットテストのみ実行
-pytest tests/unit/
-
-# 統合テストのみ実行
-pytest tests/integration/
+npm test
 ```
 
-## Project Structure
+## Deploy
 
-### Source Code
-```
-src/
-└── hellomegbot/
-    ├── main.py            # Bot entry point
-    ├── commands/          # Discord command handlers
-    ├── services/          # Business logic & data management
-    └── utils/             # Utilities
+```bash
+npx wrangler deploy
 ```
 
-### Tests
-```
-tests/
-├── unit/                  # Unit tests
-│   ├── commands/          # Command logic tests
-│   └── services/          # Service logic tests
-└── integration/           # Integration tests
-    └── test_bot.py        # End-to-end bot tests
-```
+## Register Commands
 
-## アーキテクチャ
+必要な環境変数:
+- `DISCORD_APPLICATION_ID`
+- `DISCORD_BOT_TOKEN`
 
-### クリーンアーキテクチャの採用
-
-このプロジェクトでは、ビジネスロジックと Discord インターフェースを分離したクリーンアーキテクチャを採用しています。
-
-#### サービス層（Services）
-- **責務**: ビジネスロジックの実装
-- **特徴**: Discord 依存なし、テスト容易、再利用可能
-- **例**: ガチャ確率計算、画像生成、バリデーション
-
-#### コマンド層（Commands）
-- **責務**: Discord インターフェースの処理
-- **特徴**: Discord.py 依存、ユーザー入力処理、レスポンス送信
-- **例**: スラッシュコマンド登録、インタラクション処理
-
-### 依存性注入パターン
-
-```python
-# サービスの注入例
-service = HellomegService(
-    fever_minute=0,
-    ur_probability=0.03,
-    sr_probability=0.18
-)
-command = Hellomeg(service=service)
+```bash
+npm run register:commands
 ```
 
-## Test Strategy
+## Local Curl
 
-### Unit Tests
-- **対象**: Discord依存のないビジネスロジック
-- **特徴**: 高速実行、独立性、モック可能
-- **カバレッジ**: ガチャ確率、画像選択、メッセージ生成
+```bash
+URL=http://127.0.0.1:8787/interactions
+```
 
-### Integration Tests
-- **対象**: Discord統合とコマンドフロー
-- **特徴**: Discordオブジェクトのモック、非同期テスト
-- **カバレッジ**: コマンド登録、インタラクション処理、エラーケース
+```bash
+# hellomeg
+curl -sS "$URL" -H 'content-type: application/json' -d '{"type":2,"data":{"name":"hellomeg"}}'
 
-## GitHub Actions
+# helloruri
+curl -sS "$URL" -H 'content-type: application/json' -d '{"type":2,"data":{"name":"helloruri"}}'
 
-以下のタイミングで自動テストが実行されます：
-- プッシュ時
-- プルリクエスト作成時
-- Actionsタブからの手動実行
+# mmm-mm-mmmmmmmm
+curl -sS "$URL" -H 'content-type: application/json' -d '{"type":2,"data":{"name":"mmm-mm-mmmmmmmm"}}'
 
-## 開発ガイドライン
+# keibaresult
+curl -sS "$URL" -H 'content-type: application/json' -d '{"type":2,"data":{"name":"keibaresult","options":[{"name":"result","type":3,"value":"ハロめぐー！"},{"name":"amount","type":4,"value":1000}]}}'
 
-### 新しいコマンドの追加
+# meggen (modal を返す)
+curl -sS "$URL" -H 'content-type: application/json' -d '{"type":2,"data":{"name":"meggen","options":[{"name":"img","type":3,"value":"fever"}]}}'
 
-1. **サービスクラスの作成** (`services/`ディレクトリ)
-   - ビジネスロジックの実装
-   - Discord依存を含めない
-
-2. **コマンドクラスの作成** (`commands/`ディレクトリ)
-   - Discordインターフェースの実装
-   - サービスクラスを使用
-
-3. **テストの作成**
-   - サービスのユニットテスト
-   - コマンドのユニットテスト
-
-4. **main.pyへの登録**
-   - サービスのインスタンス化
-   - コマンドの登録
-
-### コーディング規約
-
-- サービスとコマンドの責務を明確に分離
-- 型ヒントの使用を推奨
-- テストカバレッジ80%以上を目標
-- ドキュメント文字列の記載
+# meggen modal submit (画像を返す)
+curl -sS "$URL" -H 'content-type: application/json' -d '{"type":5,"data":{"custom_id":"meggen:fever","components":[{"type":1,"components":[{"type":4,"custom_id":"line_1","value":"ハロ"}]},{"type":1,"components":[{"type":4,"custom_id":"line_2","value":"めぐ"}]},{"type":1,"components":[{"type":4,"custom_id":"line_3","value":"です"}]}]}}'
+```

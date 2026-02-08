@@ -1,7 +1,11 @@
-export const MMM_MM_MMMMMMMM_UR_PROBABILITY_DEFAULT = 0.012345679;
+export const MMM_MM_MMMMMMMM_UR_PROBABILITY_DEFAULT = 0.03;
 export const MMM_MM_MMMMMMMM_SR_PROBABILITY_DEFAULT = 0.18;
 
-export const MMM_MM_MMMMMMMM_MESSAGE_NORMAL = "萌萌萌・萌萌・萌萌萌萌萌萌萌萌";
+export const MMM_MM_MMMMMMMM_MESSAGE_NORMAL = `
+＿人人人人人人人人人人人人人人人人人＿
+＞　萌萌萌・萌萌・萌萌萌萌萌萌萌萌　＜
+￣Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y^Y￣
+`;
 
 export const MMM_MM_MMMMMMMM_MESSAGE_UR = `
 ​           

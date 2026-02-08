@@ -6,7 +6,6 @@ import {
   createMultipartInteractionResponse,
 } from "../../libs/discord";
 import { parseEnvNumber } from "../../utils";
-import { joinUrl } from "../../utils";
 import {
   HELLOMEG_JSON_PATH,
   HELLOMEG_MESSAGE_NORMAL,
@@ -19,6 +18,7 @@ import {
 export async function hellomegController(
   env: Env,
 ): Promise<Response> {
+  const assetsBaseUrl = env.ASSETS_BASE_URL.replace(/\/+$/, "");
   const urProbability = parseEnvNumber(
     env.HELLOMEG_UR_PROBABILITY,
     HELLOMEG_UR_PROBABILITY_DEFAULT,
@@ -35,8 +35,9 @@ export async function hellomegController(
       data: { content: rarity === Rarity.UR ? HELLOMEG_MESSAGE_UR : HELLOMEG_MESSAGE_NORMAL },
     });
   }
+
   const result = await buildSrResult(
-    joinUrl(env.ASSETS_BASE_URL, HELLOMEG_JSON_PATH),
+    `${assetsBaseUrl}/${HELLOMEG_JSON_PATH.replace(/^\/+/, "")}`,
   );
   if (!result) {
     return createJsonInteractionResponse({
@@ -44,9 +45,8 @@ export async function hellomegController(
       data: { content: HELLOMEG_MESSAGE_NORMAL },
     });
   }
-
   const content = `${SR_MESSAGE_PREFIX}[@${result.twitterId}](<https://twitter.com/${result.twitterId}>)`;
-  const imageUrl = joinUrl(env.ASSETS_BASE_URL, result.filepath);
+  const imageUrl = `${assetsBaseUrl}/${result.filepath.replace(/^\/+/, "")}`;
   const filename = result.filepath.split("/").pop() ?? "image.png";
 
   try {

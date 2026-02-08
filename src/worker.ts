@@ -11,7 +11,7 @@ import {
 import type { DiscordInteraction } from "./libs/discord";
 import { jsonResponse } from "./utils";
 import { verifyDiscordSignature } from "./libs/discord";
-import { shouldVerifySignature, unsupported } from "./utils";
+import { shouldVerifySignature } from "./utils";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -39,10 +39,12 @@ export default {
         return jsonResponse({ error: "invalid JSON" }, 400);
       }
 
+      // エンドポイント登録時などに送られてくる PING に応答する
       if (interaction.type === InteractionType.PING) {
         return jsonResponse({ type: InteractionResponseType.PONG });
       }
 
+      // 各種コマンド処理を contoller に振り分ける
       if (interaction.type === InteractionType.APPLICATION_COMMAND) {
         const commandName = interaction.data?.name;
         switch (commandName) {
@@ -57,10 +59,11 @@ export default {
           case "meggen":
             return meggenCommandController(interaction.data?.options);
           default:
-            return unsupported(`Unknown command: ${commandName ?? "undefined"}`);
+            return new Response("Not Found", { status: 404 });
         }
       }
 
+      // モーダル送信時の処理
       if (interaction.type === InteractionType.MODAL_SUBMIT) {
         const customId = interaction.data?.custom_id;
         if (customId?.startsWith("meggen:")) {
@@ -72,7 +75,7 @@ export default {
         }
       }
 
-      return unsupported("Unsupported interaction type.");
+      return new Response("Not Found", { status: 404 });
     }
 
     return new Response("Not Found", { status: 404 });

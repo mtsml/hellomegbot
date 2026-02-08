@@ -1,4 +1,4 @@
-import { InteractionResponseType, type DiscordInteractionResponse } from "../libs/discord";
+import type { Env } from "./env";
 
 export function jsonResponse(body: object, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -13,20 +13,11 @@ export function parseEnvNumber(value: string | undefined, fallback: number): num
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-export function joinUrl(baseUrl: string, path: string): string {
-  const normalizedBase = baseUrl.replace(/\/+$/, "");
-  const normalizedPath = path.replace(/^\/+/, "");
-  return `${normalizedBase}/${normalizedPath}`;
-}
-
-export function unsupported(content: string): Response {
-  const body: DiscordInteractionResponse = {
-    type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-    data: { content },
-  };
-  return jsonResponse(body);
-}
-
+/**
+ * Discord 署名検証を行うかどうかを判定する
+ * 
+ * Discord bot なしで起動できるように署名検証をスキップする env を提供している
+ */
 export function shouldVerifySignature(env: Env): boolean {
   return env.DISCORD_SKIP_SIGNATURE_VERIFICATION !== "true";
 }

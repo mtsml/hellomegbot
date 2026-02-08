@@ -6,7 +6,6 @@ import {
   createMultipartInteractionResponse,
 } from "../../libs/discord";
 import { parseEnvNumber } from "../../utils";
-import { joinUrl } from "../../utils";
 import {
   HELLORURI_JSON_PATH,
   HELLORURI_MESSAGE_NORMAL,
@@ -19,6 +18,7 @@ import {
 export async function helloruriController(
   env: Env,
 ): Promise<Response> {
+  const assetsBaseUrl = env.ASSETS_BASE_URL.replace(/\/+$/, "");
   const urProbability = parseEnvNumber(
     env.HELLORURI_UR_PROBABILITY,
     HELLORURI_UR_PROBABILITY_DEFAULT,
@@ -35,8 +35,9 @@ export async function helloruriController(
       data: { content: rarity === Rarity.UR ? HELLORURI_MESSAGE_UR : HELLORURI_MESSAGE_NORMAL },
     });
   }
+
   const result = await buildSrResult(
-    joinUrl(env.ASSETS_BASE_URL, HELLORURI_JSON_PATH),
+    `${assetsBaseUrl}/${HELLORURI_JSON_PATH.replace(/^\/+/, "")}`,
   );
   if (!result) {
     return createJsonInteractionResponse({
@@ -46,7 +47,7 @@ export async function helloruriController(
   }
 
   const content = `${SR_MESSAGE_PREFIX}[@${result.twitterId}](<https://twitter.com/${result.twitterId}>)`;
-  const imageUrl = joinUrl(env.ASSETS_BASE_URL, result.filepath);
+  const imageUrl = `${assetsBaseUrl}/${result.filepath.replace(/^\/+/, "")}`;
   const filename = result.filepath.split("/").pop() ?? "image.png";
 
   try {

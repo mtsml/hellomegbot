@@ -6,7 +6,6 @@ import {
   createMultipartInteractionResponse,
 } from "../../libs/discord";
 import { parseEnvNumber } from "../../utils";
-import { joinUrl } from "../../utils";
 import {
   MMM_MM_MMMMMMMM_JSON_PATH,
   MMM_MM_MMMMMMMM_MESSAGE_NORMAL,
@@ -17,6 +16,7 @@ import {
 } from "./constants";
 
 export async function mmmMmMmmmmmmmController(env: Env): Promise<Response> {
+  const assetsBaseUrl = env.ASSETS_BASE_URL.replace(/\/+$/, "");
   const urProbability = parseEnvNumber(
     env.MMM_MM_MMMMMMMM_UR_PROBABILITY,
     MMM_MM_MMMMMMMM_UR_PROBABILITY_DEFAULT,
@@ -38,8 +38,9 @@ export async function mmmMmMmmmmmmmController(env: Env): Promise<Response> {
       },
     });
   }
+
   const result = await buildSrResult(
-    joinUrl(env.ASSETS_BASE_URL, MMM_MM_MMMMMMMM_JSON_PATH),
+    `${assetsBaseUrl}/${MMM_MM_MMMMMMMM_JSON_PATH.replace(/^\/+/, "")}`,
   );
   if (!result) {
     return createJsonInteractionResponse({
@@ -49,7 +50,7 @@ export async function mmmMmMmmmmmmmController(env: Env): Promise<Response> {
   }
 
   const content = `${SR_MESSAGE_PREFIX}[@${result.twitterId}](<https://twitter.com/${result.twitterId}>)`;
-  const imageUrl = joinUrl(env.ASSETS_BASE_URL, result.filepath);
+  const imageUrl = `${assetsBaseUrl}/${result.filepath.replace(/^\/+/, "")}`;
   const filename = result.filepath.split("/").pop() ?? "image.png";
 
   try {

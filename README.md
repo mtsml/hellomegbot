@@ -10,36 +10,15 @@ npm i
 
 ## Local
 
+実際の Discord bot と連携せずにローカルで動作確認を行う手順です。\
+署名検証をスキップすることで、curl で直接リクエストを送信できます。
+
 ```bash
 npx wrangler dev \
   --var DISCORD_SKIP_SIGNATURE_VERIFICATION:true \
   --var ASSETS_BASE_URL:http://127.0.0.1:8787 \
   --var DISCORD_PUBLIC_KEY:dummy
 ```
-
-## Test
-
-```bash
-npm test
-```
-
-## Deploy
-
-```bash
-npx wrangler deploy
-```
-
-## Register Commands
-
-必要な環境変数:
-- `DISCORD_APPLICATION_ID`
-- `DISCORD_BOT_TOKEN`
-
-```bash
-npm run register:commands
-```
-
-## Local Curl
 
 ```bash
 URL=http://127.0.0.1:8787/interactions
@@ -63,4 +42,30 @@ curl -sS "$URL" -H 'content-type: application/json' -d '{"type":2,"data":{"name"
 
 # meggen modal submit (画像を返す)
 curl -sS "$URL" -H 'content-type: application/json' -d '{"type":5,"data":{"custom_id":"meggen:fever","components":[{"type":1,"components":[{"type":4,"custom_id":"line_1","value":"ハロ"}]},{"type":1,"components":[{"type":4,"custom_id":"line_2","value":"めぐ"}]},{"type":1,"components":[{"type":4,"custom_id":"line_3","value":"です"}]}]}}'
+```
+
+## Dev
+
+TODO: 実際の Discord bot と連携して動作確認を行う手順を記載する。
+
+## Test
+
+```bash
+npm test
+```
+
+## Deploy
+
+```bash
+npx wrangler deploy
+```
+
+## Register Commands
+
+必要な環境変数:
+- `DISCORD_APPLICATION_ID`
+- `DISCORD_BOT_TOKEN`
+
+```bash
+npm run register:commands
 ```

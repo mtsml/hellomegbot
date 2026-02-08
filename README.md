@@ -102,6 +102,13 @@ command = Hellomeg(service=service)
 - プルリクエスト作成時
 - Actionsタブからの手動実行
 
+## Cloudflare Workers (Pilot)
+
+`/hellomeg` のみを Cloudflare Interactions へ移行するパイロット実装を追加しました。
+
+- 実装: `workers/discord-interactions/src/worker.ts`
+- 手順: `workers/discord-interactions/README.md`
+
 ## 開発ガイドライン
 
 ### 新しいコマンドの追加

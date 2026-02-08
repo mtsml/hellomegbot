@@ -55,5 +55,4 @@ export const HELLOMEG_MESSAGE_UR = `
 `;
 
 export const SR_MESSAGE_PREFIX = "イラスト：";
-export const HELLOMEG_JSON_URL =
-  "https://hellomeg-assets.pages.dev/public/hellomegbot/hellomeg.json";
+export const HELLOMEG_JSON_PATH = "public/hellomegbot/hellomeg.json";

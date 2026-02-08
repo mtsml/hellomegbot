@@ -56,5 +56,4 @@ export const HELLORURI_MESSAGE_UR = `
 `;
 
 export const SR_MESSAGE_PREFIX = "イラスト：";
-export const HELLORURI_JSON_URL =
-  "https://hellomeg-assets.pages.dev/public/hellomegbot/helloruri.json";
+export const HELLORURI_JSON_PATH = "public/hellomegbot/helloruri.json";

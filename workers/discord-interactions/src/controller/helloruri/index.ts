@@ -6,8 +6,9 @@ import {
   createMultipartInteractionResponse,
 } from "../../util/interaction-response";
 import { parseEnvNumber } from "../../util/number";
+import { joinUrl } from "../../util/url";
 import {
-  HELLORURI_JSON_URL,
+  HELLORURI_JSON_PATH,
   HELLORURI_MESSAGE_NORMAL,
   HELLORURI_MESSAGE_UR,
   HELLORURI_SR_PROBABILITY_DEFAULT,
@@ -15,7 +16,7 @@ import {
   SR_MESSAGE_PREFIX,
 } from "./constants";
 
-export async function handleHelloruriController(
+export async function helloruriController(
   env: Env,
 ): Promise<Response> {
   const urProbability = parseEnvNumber(
@@ -34,7 +35,9 @@ export async function handleHelloruriController(
       data: { content: rarity === Rarity.UR ? HELLORURI_MESSAGE_UR : HELLORURI_MESSAGE_NORMAL },
     });
   }
-  const result = await buildSrResult(HELLORURI_JSON_URL);
+  const result = await buildSrResult(
+    joinUrl(env.ASSETS_BASE_URL, HELLORURI_JSON_PATH),
+  );
   if (!result) {
     return createJsonInteractionResponse({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -43,7 +46,7 @@ export async function handleHelloruriController(
   }
 
   const content = `${SR_MESSAGE_PREFIX}[@${result.twitterId}](<https://twitter.com/${result.twitterId}>)`;
-  const imageUrl = `${env.GACHA_ASSETS_BASE_URL}/${result.filepath}`;
+  const imageUrl = joinUrl(env.ASSETS_BASE_URL, result.filepath);
   const filename = result.filepath.split("/").pop() ?? "image.png";
 
   try {

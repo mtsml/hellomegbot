@@ -1,9 +1,9 @@
-export const MMM_UR_PROBABILITY_DEFAULT = 0.012345679;
-export const MMM_SR_PROBABILITY_DEFAULT = 0.18;
+export const MMM_MM_MMMMMMMM_UR_PROBABILITY_DEFAULT = 0.012345679;
+export const MMM_MM_MMMMMMMM_SR_PROBABILITY_DEFAULT = 0.18;
 
-export const MMM_MESSAGE_NORMAL = "萌萌萌・萌萌・萌萌萌萌萌萌萌萌";
+export const MMM_MM_MMMMMMMM_MESSAGE_NORMAL = "萌萌萌・萌萌・萌萌萌萌萌萌萌萌";
 
-export const MMM_MESSAGE_UR = `
+export const MMM_MM_MMMMMMMM_MESSAGE_UR = `
 ​           
 　　　■　　　■　　　
 ■■■■■■■■■■■
@@ -149,5 +149,4 @@ export const MMM_MESSAGE_UR = `
 `;
 
 export const SR_MESSAGE_PREFIX = "イラスト：";
-export const MMM_JSON_URL =
-  "https://hellomeg-assets.pages.dev/public/hellomegbot/mmm-mm-mmmmmmmm.json";
+export const MMM_MM_MMMMMMMM_JSON_PATH = "public/hellomegbot/mmm-mm-mmmmmmmm.json";

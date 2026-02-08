@@ -30,7 +30,7 @@ function parseKeibaOptions(options: DiscordCommandOption[] | undefined): {
   };
 }
 
-export async function handleKeibaresultController(
+export async function keibaresultController(
   env: Env,
   options: DiscordCommandOption[] | undefined,
 ): Promise<Response> {

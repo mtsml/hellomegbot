@@ -6,42 +6,50 @@ import {
   createMultipartInteractionResponse,
 } from "../../util/interaction-response";
 import { parseEnvNumber } from "../../util/number";
+import { joinUrl } from "../../util/url";
 import {
-  MMM_JSON_URL,
-  MMM_MESSAGE_NORMAL,
-  MMM_MESSAGE_UR,
-  MMM_SR_PROBABILITY_DEFAULT,
-  MMM_UR_PROBABILITY_DEFAULT,
+  MMM_MM_MMMMMMMM_JSON_PATH,
+  MMM_MM_MMMMMMMM_MESSAGE_NORMAL,
+  MMM_MM_MMMMMMMM_MESSAGE_UR,
+  MMM_MM_MMMMMMMM_SR_PROBABILITY_DEFAULT,
+  MMM_MM_MMMMMMMM_UR_PROBABILITY_DEFAULT,
   SR_MESSAGE_PREFIX,
 } from "./constants";
 
-export async function handleMmmController(env: Env): Promise<Response> {
+export async function mmmMmMmmmmmmmController(env: Env): Promise<Response> {
   const urProbability = parseEnvNumber(
     env.MMM_MM_MMMMMMMM_UR_PROBABILITY,
-    MMM_UR_PROBABILITY_DEFAULT,
+    MMM_MM_MMMMMMMM_UR_PROBABILITY_DEFAULT,
   );
   const srProbability = parseEnvNumber(
     env.MMM_MM_MMMMMMMM_SR_PROBABILITY,
-    MMM_SR_PROBABILITY_DEFAULT,
+    MMM_MM_MMMMMMMM_SR_PROBABILITY_DEFAULT,
   );
   const rarity = drawRarity(urProbability, srProbability);
 
   if (rarity === Rarity.UR || rarity === Rarity.NORMAL) {
     return createJsonInteractionResponse({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: { content: rarity === Rarity.UR ? MMM_MESSAGE_UR : MMM_MESSAGE_NORMAL },
+      data: {
+        content:
+          rarity === Rarity.UR
+            ? MMM_MM_MMMMMMMM_MESSAGE_UR
+            : MMM_MM_MMMMMMMM_MESSAGE_NORMAL,
+      },
     });
   }
-  const result = await buildSrResult(MMM_JSON_URL);
+  const result = await buildSrResult(
+    joinUrl(env.ASSETS_BASE_URL, MMM_MM_MMMMMMMM_JSON_PATH),
+  );
   if (!result) {
     return createJsonInteractionResponse({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: { content: MMM_MESSAGE_NORMAL },
+      data: { content: MMM_MM_MMMMMMMM_MESSAGE_NORMAL },
     });
   }
 
   const content = `${SR_MESSAGE_PREFIX}[@${result.twitterId}](<https://twitter.com/${result.twitterId}>)`;
-  const imageUrl = `${env.GACHA_ASSETS_BASE_URL}/${result.filepath}`;
+  const imageUrl = joinUrl(env.ASSETS_BASE_URL, result.filepath);
   const filename = result.filepath.split("/").pop() ?? "image.png";
 
   try {
@@ -57,7 +65,10 @@ export async function handleMmmController(env: Env): Promise<Response> {
       },
     });
   } catch (error) {
-    console.error("mmm controller fallback", { phase: "attachment", error });
+    console.error("mmm-mm-mmmmmmmm controller fallback", {
+      phase: "attachment",
+      error,
+    });
     return createJsonInteractionResponse({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
       data: { content },

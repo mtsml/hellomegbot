@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DiscordCommandOption, Env } from "../../types";
 import { KeibaResult } from "../../service/keibaresult";
-import { handleKeibaresultController } from "./index";
+import { keibaresultController } from "./index";
 import * as keibaService from "../../service/keibaresult";
 
 vi.mock("../../service/keibaresult", async () => {
@@ -21,7 +21,7 @@ function createEnv(overrides?: Partial<Env>): Env {
     ASSETS: {
       fetch: vi.fn(),
     },
-    GACHA_ASSETS_BASE_URL: "https://cdn.example.com",
+    ASSETS_BASE_URL: "https://cdn.example.com",
     DISCORD_PUBLIC_KEY: "pub",
     ...overrides,
   };
@@ -36,9 +36,9 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-describe("handleKeibaresultController", () => {
+describe("keibaresultController", () => {
   it("returns ephemeral error when required options are missing", async () => {
-    const response = await handleKeibaresultController(createEnv(), undefined);
+    const response = await keibaresultController(createEnv(), undefined);
     const payload = await response.json();
 
     expect(payload.data.content).toBe("result と amount の指定が必要です");
@@ -46,7 +46,7 @@ describe("handleKeibaresultController", () => {
   });
 
   it("returns ephemeral error when result is invalid", async () => {
-    const response = await handleKeibaresultController(createEnv(), [
+    const response = await keibaresultController(createEnv(), [
       option("result", 3, "invalid"),
       option("amount", 4, 100),
     ]);
@@ -62,7 +62,7 @@ describe("handleKeibaresultController", () => {
       errorMessage: "amount is invalid",
     });
 
-    const response = await handleKeibaresultController(createEnv(), [
+    const response = await keibaresultController(createEnv(), [
       option("result", 3, KeibaResult.WIN),
       option("amount", 4, 100),
     ]);
@@ -78,7 +78,7 @@ describe("handleKeibaresultController", () => {
       content: "ハロめぐー！",
     });
 
-    const response = await handleKeibaresultController(createEnv(), [
+    const response = await keibaresultController(createEnv(), [
       option("result", 3, KeibaResult.WIN),
       option("amount", 4, 100),
     ]);
@@ -101,7 +101,7 @@ describe("handleKeibaresultController", () => {
       }),
     );
 
-    const response = await handleKeibaresultController(
+    const response = await keibaresultController(
       createEnv({ ASSETS: { fetch: assetsFetch } }),
       [option("result", 3, KeibaResult.LOSE), option("amount", 4, 100)],
     );
@@ -125,7 +125,7 @@ describe("handleKeibaresultController", () => {
 
     const assetsFetch = vi.fn().mockRejectedValue(new Error("boom"));
 
-    const response = await handleKeibaresultController(
+    const response = await keibaresultController(
       createEnv({ ASSETS: { fetch: assetsFetch } }),
       [option("result", 3, KeibaResult.LOSE), option("amount", 4, 100)],
     );

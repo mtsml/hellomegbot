@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import type { Env } from "../../types";
 import { Rarity } from "../../service/gacha";
-import { handleHellomegController } from "./index";
+import { hellomegController } from "./index";
 import * as gachaService from "../../service/gacha";
 import { HELLOMEG_MESSAGE_UR } from "./constants";
 
@@ -20,7 +20,7 @@ vi.mock("../../service/gacha", async () => {
 function createEnv(overrides?: Partial<Env>): Env {
   return {
     ASSETS: { fetch: vi.fn() },
-    GACHA_ASSETS_BASE_URL: "https://cdn.example.com",
+    ASSETS_BASE_URL: "https://cdn.example.com",
     DISCORD_PUBLIC_KEY: "pub",
     HELLOMEG_UR_PROBABILITY: "0.11",
     HELLOMEG_SR_PROBABILITY: "0.22",
@@ -33,14 +33,14 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-describe("handleHellomegController", () => {
+describe("hellomegController", () => {
   it("returns JSON with UR large message", async () => {
     vi.mocked(gachaService.drawRarity).mockReturnValue(Rarity.UR);
 
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    const response = await handleHellomegController(createEnv());
+    const response = await hellomegController(createEnv());
     const payload = await response.json();
 
     expect(payload.data.content).toBe(HELLOMEG_MESSAGE_UR);
@@ -54,7 +54,7 @@ describe("handleHellomegController", () => {
     vi.mocked(gachaService.drawRarity).mockReturnValue(Rarity.SR);
     vi.mocked(gachaService.buildSrResult).mockResolvedValue(null);
 
-    const response = await handleHellomegController(createEnv());
+    const response = await hellomegController(createEnv());
     const payload = await response.json();
 
     expect(payload.data.content).toBe("ハロめぐー！");
@@ -75,7 +75,7 @@ describe("handleHellomegController", () => {
     );
     vi.stubGlobal("fetch", fetchSpy);
 
-    const response = await handleHellomegController(createEnv());
+    const response = await hellomegController(createEnv());
     const bodyText = new TextDecoder().decode(await response.arrayBuffer());
 
     expect(response.headers.get("content-type")).toContain("multipart/form-data");
@@ -96,7 +96,7 @@ describe("handleHellomegController", () => {
 
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("boom")));
 
-    const response = await handleHellomegController(createEnv());
+    const response = await hellomegController(createEnv());
     const payload = await response.json();
 
     expect(payload.data.content).toBe(

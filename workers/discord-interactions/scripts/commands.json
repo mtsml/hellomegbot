@@ -1,0 +1,42 @@
+[
+  {
+    "name": "hellomeg",
+    "description": "ハロめぐー！",
+    "type": 1
+  },
+  {
+    "name": "helloruri",
+    "description": "ハロるりー！",
+    "type": 1
+  },
+  {
+    "name": "mmm-mm-mmmmmmmm",
+    "description": "萌萌萌・萌萌・萌萌萌萌萌萌萌萌",
+    "type": 1
+  },
+  {
+    "name": "keibaresult",
+    "description": "競馬の結果を報告する",
+    "type": 1,
+    "options": [
+      {
+        "type": 3,
+        "name": "result",
+        "description": "今日の競馬の結果は？",
+        "required": true,
+        "choices": [
+          { "name": "ハロめぐー！", "value": "ハロめぐー！" },
+          { "name": "バイめぐ〜", "value": "バイめぐ〜" },
+          { "name": "めぐ", "value": "めぐ" }
+        ]
+      },
+      {
+        "type": 4,
+        "name": "amount",
+        "description": "いくら？",
+        "required": true,
+        "min_value": 0
+      }
+    ]
+  }
+]

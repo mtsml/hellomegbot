@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "register:commands": "node scripts/register-commands.mjs --file scripts/commands.json"
   },
   "devDependencies": {
     "typescript": "^5.7.3",

@@ -2,10 +2,8 @@ export type Env = {
   ASSETS: {
     fetch(request: Request): Promise<Response>;
   };
-  GACHA_ASSETS_BASE_URL: string;
+  ASSETS_BASE_URL: string;
   DISCORD_PUBLIC_KEY: string;
-  DISCORD_APPLICATION_ID?: string;
-  DISCORD_BOT_TOKEN?: string;
   DISCORD_SKIP_SIGNATURE_VERIFICATION?: string;
   HELLOMEG_UR_PROBABILITY?: string;
   HELLOMEG_SR_PROBABILITY?: string;

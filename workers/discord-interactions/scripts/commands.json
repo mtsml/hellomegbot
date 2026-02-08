@@ -38,5 +38,26 @@
         "min_value": 0
       }
     ]
+  },
+  {
+    "name": "meggen",
+    "description": "ハロめぐイラスト作成",
+    "type": 1,
+    "options": [
+      {
+        "type": 3,
+        "name": "img",
+        "description": "ハロめぐを選んでください",
+        "required": true,
+        "choices": [
+          { "name": "フィーバー", "value": "fever" },
+          { "name": "ハロめぐだもん", "value": "damon" },
+          { "name": "ハクチュー", "value": "hkc" },
+          { "name": "宇宙猫", "value": "universe" },
+          { "name": "蓮ノ空しかないんすよ", "value": "hasunosorashikanainsuyo" },
+          { "name": "ドヤめぐ", "value": "doya" }
+        ]
+      }
+    ]
   }
 ]

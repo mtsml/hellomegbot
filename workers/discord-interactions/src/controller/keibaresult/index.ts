@@ -8,25 +8,20 @@ import {
   createJsonInteractionResponse,
   createMultipartInteractionResponse,
 } from "../../util/interaction-response";
+import {
+  getNumberCommandOption,
+  getStringCommandOption,
+} from "../../util/command-option";
 
 const EPHEMERAL_FLAG = 1 << 6;
-
-function findOption(
-  options: DiscordCommandOption[] | undefined,
-  name: string,
-): DiscordCommandOption | undefined {
-  return options?.find((option) => option.name === name);
-}
 
 function parseKeibaOptions(options: DiscordCommandOption[] | undefined): {
   result?: string;
   amount?: number;
 } {
-  const resultOption = findOption(options, "result");
-  const amountOption = findOption(options, "amount");
   return {
-    result: typeof resultOption?.value === "string" ? resultOption.value : undefined,
-    amount: typeof amountOption?.value === "number" ? amountOption.value : undefined,
+    result: getStringCommandOption(options, "result"),
+    amount: getNumberCommandOption(options, "amount"),
   };
 }
 

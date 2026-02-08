@@ -5,9 +5,14 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "register:commands": "node scripts/register-commands.mjs --file scripts/commands.json"
+    "register:commands": "node scripts/register-commands.mjs --file scripts/commands.json",
+    "preview:meggen": "tsx scripts/preview-meggen.ts"
+  },
+  "dependencies": {
+    "@resvg/resvg-wasm": "^2.6.2"
   },
   "devDependencies": {
+    "tsx": "^4.20.3",
     "typescript": "^5.7.3",
     "vitest": "^2.1.9"
   }

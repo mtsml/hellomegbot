@@ -16,13 +16,27 @@ export type Env = {
 export enum InteractionType {
   PING = 1,
   APPLICATION_COMMAND = 2,
+  MODAL_SUBMIT = 5,
 }
+
+export type DiscordTextInputComponent = {
+  type: number;
+  custom_id?: string;
+  value?: string;
+};
+
+export type DiscordModalSubmitComponent = {
+  type: number;
+  components?: DiscordTextInputComponent[];
+};
 
 export type DiscordInteraction = {
   type: InteractionType;
   data?: {
     name?: string;
     options?: DiscordCommandOption[];
+    custom_id?: string;
+    components?: DiscordModalSubmitComponent[];
   };
 };
 
@@ -35,6 +49,7 @@ export type DiscordCommandOption = {
 export enum InteractionResponseType {
   PONG = 1,
   CHANNEL_MESSAGE_WITH_SOURCE = 4,
+  MODAL = 9,
 }
 
 export type DiscordInteractionResponse = {
@@ -44,5 +59,17 @@ export type DiscordInteractionResponse = {
     embeds?: Array<{ image: { url: string } }>;
     attachments?: Array<{ id: number; filename: string }>;
     flags?: number;
+    title?: string;
+    custom_id?: string;
+    components?: Array<{
+      type: number;
+      components: Array<{
+        type: number;
+        custom_id: string;
+        label: string;
+        style: number;
+        required?: boolean;
+      }>;
+    }>;
   };
 };

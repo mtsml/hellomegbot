@@ -2,6 +2,7 @@ import { keibaresultController } from "./controller/keibaresult";
 import { hellomegController } from "./controller/hellomeg";
 import { helloruriController } from "./controller/helloruri";
 import { mmmMmMmmmmmmmController } from "./controller/mmm-mm-mmmmmmmm";
+import { meggenCommandController, meggenModalController } from "./controller/meggen";
 import type { Env } from "./types";
 import {
   InteractionResponseType,
@@ -41,23 +42,37 @@ export default {
       if (interaction.type === InteractionType.PING) {
         return jsonResponse({ type: InteractionResponseType.PONG });
       }
-      if (interaction.type !== InteractionType.APPLICATION_COMMAND) {
-        return unsupported("Unsupported interaction type.");
+
+      if (interaction.type === InteractionType.APPLICATION_COMMAND) {
+        const commandName = interaction.data?.name;
+        switch (commandName) {
+          case "hellomeg":
+            return hellomegController(env);
+          case "helloruri":
+            return helloruriController(env);
+          case "mmm-mm-mmmmmmmm":
+            return mmmMmMmmmmmmmController(env);
+          case "keibaresult":
+            return keibaresultController(env, interaction.data?.options);
+          case "meggen":
+            return meggenCommandController(interaction.data?.options);
+          default:
+            return unsupported(`Unknown command: ${commandName ?? "undefined"}`);
+        }
       }
 
-      const commandName = interaction.data?.name;
-      switch (commandName) {
-        case "hellomeg":
-          return hellomegController(env);
-        case "helloruri":
-          return helloruriController(env);
-        case "mmm-mm-mmmmmmmm":
-          return mmmMmMmmmmmmmController(env);
-        case "keibaresult":
-          return keibaresultController(env, interaction.data?.options);
-        default:
-          return unsupported(`Unknown command: ${commandName ?? "undefined"}`);
+      if (interaction.type === InteractionType.MODAL_SUBMIT) {
+        const customId = interaction.data?.custom_id;
+        if (customId?.startsWith("meggen:")) {
+          return meggenModalController({
+            env,
+            customId,
+            components: interaction.data?.components,
+          });
+        }
       }
+
+      return unsupported("Unsupported interaction type.");
     }
 
     return new Response("Not Found", { status: 404 });

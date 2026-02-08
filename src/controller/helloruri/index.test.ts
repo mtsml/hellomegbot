@@ -4,7 +4,7 @@ import type { Env } from "../../util/env";
 import { Rarity } from "../../service/gacha";
 import { helloruriController } from "./index";
 import * as gachaService from "../../service/gacha";
-import { HELLORURI_MESSAGE_UR } from "./constants";
+import { HELLORURI_MESSAGE_NORMAL, HELLORURI_MESSAGE_UR } from "./constants";
 
 vi.mock("../../service/gacha", async () => {
   const actual = await vi.importActual<typeof import("../../service/gacha")>(
@@ -57,7 +57,7 @@ describe("helloruriController", () => {
     const response = await helloruriController(createEnv());
     const payload = await response.json();
 
-    expect(payload.data.content).toBe("ハロるりー！");
+    expect(payload.data.content).toBe(HELLORURI_MESSAGE_NORMAL);
     expect(response.headers.get("content-type")).toContain("application/json");
   });
 

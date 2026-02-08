@@ -1,13 +1,8 @@
-__pycache__
-.env
-.coverage
-.DS_Store
-
-# workers env
+# local env
 .dev.vars
 
-# workers artifacts
-workers/discord-interactions/node_modules/
-workers/discord-interactions/.wrangler/
-workers/discord-interactions/coverage/
-workers/discord-interactions/dist/
+# node artifacts
+node_modules/
+.wrangler/
+coverage/
+dist/

@@ -19,6 +19,12 @@ function parseTemperature(payload: OpenMeteoResponse): number | null {
  */
 export async function getKanazawaCurrentTemperature(): Promise<number | null> {
   try {
+    console.info({
+      event: "weather_service_request",
+      phase: "current_temperature",
+      location: "Kanazawa",
+    });
+
     const apiUrl = new URL("https://api.open-meteo.com/v1/forecast");
     apiUrl.searchParams.set("latitude", String(KANAZAWA_LATITUDE));
     apiUrl.searchParams.set("longitude", String(KANAZAWA_LONGITUDE));
@@ -32,9 +38,20 @@ export async function getKanazawaCurrentTemperature(): Promise<number | null> {
     const temperature = parseTemperature(payload);
     if (temperature === null) throw new Error("invalid current temperature response");
 
+    console.info({
+      event: "weather_service_response",
+      phase: "current_temperature",
+      location: "Kanazawa",
+      temperature,
+    });
+
     return temperature;
   } catch (error) {
-    console.error("weather service fallback", { phase: "current_temperature", error });
+    console.error({
+      event: "weather_service_fallback",
+      phase: "current_temperature",
+      error,
+    });
     return null;
   }
 }

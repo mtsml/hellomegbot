@@ -60,6 +60,10 @@ npm test
 npx wrangler deploy
 ```
 
+## Weather data attribution
+
+The `/hellomeg` high-temperature response uses weather data from [Open-Meteo.com](https://open-meteo.com/) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
 ## Register Commands
 
 必要な環境変数:

@@ -1,4 +1,5 @@
 import { Rarity, buildSrResult, drawRarity } from "../../services/gacha";
+import { getKanazawaCurrentTemperature } from "../../services/weather";
 import { InteractionResponseType } from "../../libs/discord";
 import type { Env } from "../../utils/env";
 import {
@@ -8,6 +9,8 @@ import {
 import { parseEnvNumber } from "../../utils";
 import {
   HELLOMEG_JSON_PATH,
+  HELLOMEG_HIGH_TEMPERATURE_SR_RESULT,
+  HELLOMEG_HIGH_TEMPERATURE_THRESHOLD_CELSIUS_DEFAULT,
   HELLOMEG_MESSAGE_NORMAL,
   HELLOMEG_MESSAGE_UR,
   HELLOMEG_SR_PROBABILITY_DEFAULT,
@@ -15,10 +18,26 @@ import {
   SR_MESSAGE_PREFIX,
 } from "./constants";
 
-export async function hellomegController(
-  env: Env,
-): Promise<Response> {
+export async function hellomegController(env: Env): Promise<Response> {
   const assetsBaseUrl = env.ASSETS_BASE_URL.replace(/\/+$/, "");
+
+  if (env.HELLOMEG_HIGH_TEMPERATURE_ENABLED === "true") {
+    const currentTemperature = await getKanazawaCurrentTemperature();
+    const highTemperatureThreshold = parseEnvNumber(
+      env.HELLOMEG_HIGH_TEMPERATURE_THRESHOLD_CELSIUS,
+      HELLOMEG_HIGH_TEMPERATURE_THRESHOLD_CELSIUS_DEFAULT,
+    );
+    if (
+      currentTemperature !== null
+      && currentTemperature >= highTemperatureThreshold
+    ) {
+      return createSrImageResponse(
+        assetsBaseUrl,
+        HELLOMEG_HIGH_TEMPERATURE_SR_RESULT,
+      );
+    }
+  }
+
   const urProbability = parseEnvNumber(
     env.HELLOMEG_UR_PROBABILITY,
     HELLOMEG_UR_PROBABILITY_DEFAULT,
@@ -45,6 +64,13 @@ export async function hellomegController(
       data: { content: HELLOMEG_MESSAGE_NORMAL },
     });
   }
+  return createSrImageResponse(assetsBaseUrl, result);
+}
+
+async function createSrImageResponse(
+  assetsBaseUrl: string,
+  result: { filepath: string; twitterId: string },
+): Promise<Response> {
   const content = `${SR_MESSAGE_PREFIX}[@${result.twitterId}](<https://twitter.com/${result.twitterId}>)`;
   const imageUrl = `${assetsBaseUrl}/${result.filepath.replace(/^\/+/, "")}`;
   const filename = result.filepath.split("/").pop() ?? "image.png";

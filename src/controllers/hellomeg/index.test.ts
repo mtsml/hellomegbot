@@ -4,6 +4,7 @@ import type { Env } from "../../utils/env";
 import { Rarity } from "../../services/gacha";
 import { hellomegController } from "./index";
 import * as gachaService from "../../services/gacha";
+import * as weatherService from "../../services/weather";
 import { HELLOMEG_MESSAGE_NORMAL, HELLOMEG_MESSAGE_UR } from "./constants";
 
 vi.mock("../../services/gacha", async () => {
@@ -16,6 +17,10 @@ vi.mock("../../services/gacha", async () => {
     buildSrResult: vi.fn(),
   };
 });
+
+vi.mock("../../services/weather", () => ({
+  getKanazawaCurrentTemperature: vi.fn(),
+}));
 
 function createEnv(overrides?: Partial<Env>): Env {
   return {
@@ -30,10 +35,49 @@ function createEnv(overrides?: Partial<Env>): Env {
 
 beforeEach(() => {
   vi.resetAllMocks();
+  vi.mocked(weatherService.getKanazawaCurrentTemperature).mockResolvedValue(null);
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 describe("hellomegController", () => {
+  it("returns the fixed SR image without a rarity draw at 35 degrees or above", async () => {
+    vi.mocked(weatherService.getKanazawaCurrentTemperature).mockResolvedValue(35);
+    const fetchSpy = vi.fn().mockResolvedValue(
+      new Response(new Uint8Array([1, 2, 3]), {
+        headers: { "content-type": "image/png" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const response = await hellomegController(createEnv({
+      HELLOMEG_HIGH_TEMPERATURE_ENABLED: "true",
+    }));
+    const bodyText = new TextDecoder().decode(await response.arrayBuffer());
+
+    expect(response.headers.get("content-type")).toContain("multipart/form-data");
+    expect(fetchSpy).toHaveBeenCalledWith(
+      "https://cdn.example.com/images/pine_nm/tokemeg.png",
+    );
+    expect(bodyText).toContain("イラスト：[@pine_nm](<https://twitter.com/pine_nm>)");
+    expect(bodyText).toContain('filename="tokemeg.png"');
+    expect(gachaService.drawRarity).not.toHaveBeenCalled();
+    expect(gachaService.buildSrResult).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the normal gacha when the temperature is unavailable", async () => {
+    vi.mocked(weatherService.getKanazawaCurrentTemperature).mockResolvedValue(null);
+    vi.mocked(gachaService.drawRarity).mockReturnValue(Rarity.NORMAL);
+
+    const response = await hellomegController(createEnv({
+      HELLOMEG_HIGH_TEMPERATURE_ENABLED: "true",
+    }));
+    const payload = await response.json();
+
+    expect(payload.data.content).toBe(HELLOMEG_MESSAGE_NORMAL);
+    expect(gachaService.drawRarity).toHaveBeenCalledWith(0.11, 0.22);
+    expect(gachaService.buildSrResult).not.toHaveBeenCalled();
+  });
+
   it("returns JSON with UR large message", async () => {
     vi.mocked(gachaService.drawRarity).mockReturnValue(Rarity.UR);
 

@@ -5,7 +5,7 @@ Discord Interactions を Cloudflare Workers で処理する bot です。
 ## Setup
 
 ```bash
-npm i
+npm ci
 ```
 
 ## Local
@@ -46,7 +46,29 @@ curl -sS "$URL" -H 'content-type: application/json' -d '{"type":5,"data":{"custo
 
 ## Dev
 
-TODO: 実際の Discord bot と連携して動作確認を行う手順を記載する。
+コマンドを登録後、ローカル Worker を Quick Tunnel で公開して動作確認します。
+
+```bash
+DISCORD_APPLICATION_ID=<development-application-id> \
+DISCORD_BOT_TOKEN=<development-bot-token> \
+npm run register:commands
+```
+
+続けて、開発用 Application の公開鍵を指定して Worker を起動します。`DISCORD_SKIP_SIGNATURE_VERIFICATION` は指定しません。
+
+```bash
+npx wrangler dev \
+  --var DISCORD_PUBLIC_KEY:<development-application-public-key> \
+  --var ASSETS_BASE_URL:https://hellomeg-assets.pages.dev
+```
+
+さらに別のターミナルで Quick Tunnel を起動します。
+
+```bash
+cloudflared tunnel --url http://localhost:8787
+```
+
+表示された `https://<random>.trycloudflare.com/interactions` を Discord Developer Portal の開発用 Application の **Interactions Endpoint URL** に設定します。その後、テスト用サーバーでコマンドを実行します。Quick Tunnel の URL は起動ごとに変わるため、その都度 Endpoint URL を更新してください。
 
 ## Test
 

@@ -67,3 +67,4 @@ export const HELLOMEG_HIGH_TEMPERATURE_SR_RESULT = {
   filepath: "images/pine_nm/tokemeg.png",
   twitterId: "pine_nm",
 };
+export const HELLOMEG_HIGH_TEMPERATURE_ASSET_FONT_PATH = "/fonts/keifont.ttf";

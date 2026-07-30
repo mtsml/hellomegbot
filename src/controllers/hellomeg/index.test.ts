@@ -5,6 +5,7 @@ import { Rarity } from "../../services/gacha";
 import { hellomegController } from "./index";
 import * as gachaService from "../../services/gacha";
 import * as weatherService from "../../services/weather";
+import * as highTemperatureImageService from "../../services/high-temperature-image";
 import { HELLOMEG_MESSAGE_NORMAL, HELLOMEG_MESSAGE_UR } from "./constants";
 
 vi.mock("../../services/gacha", async () => {
@@ -20,6 +21,10 @@ vi.mock("../../services/gacha", async () => {
 
 vi.mock("../../services/weather", () => ({
   getKanazawaCurrentTemperature: vi.fn(),
+}));
+
+vi.mock("../../services/high-temperature-image", () => ({
+  generateHighTemperaturePng: vi.fn(),
 }));
 
 function createEnv(overrides?: Partial<Env>): Env {
@@ -42,6 +47,10 @@ beforeEach(() => {
 describe("hellomegController", () => {
   it("returns the fixed SR image without a rarity draw at 35 degrees or above", async () => {
     vi.mocked(weatherService.getKanazawaCurrentTemperature).mockResolvedValue(35);
+    vi.mocked(highTemperatureImageService.generateHighTemperaturePng).mockResolvedValue({
+      filename: "tokemeg.png",
+      data: new Uint8Array([4, 5, 6]).buffer,
+    });
     const fetchSpy = vi.fn().mockResolvedValue(
       new Response(new Uint8Array([1, 2, 3]), {
         headers: { "content-type": "image/png" },
@@ -50,6 +59,9 @@ describe("hellomegController", () => {
     vi.stubGlobal("fetch", fetchSpy);
 
     const response = await hellomegController(createEnv({
+      ASSETS: {
+        fetch: vi.fn().mockResolvedValue(new Response(new Uint8Array([7, 8, 9]))),
+      },
       HELLOMEG_HIGH_TEMPERATURE_ENABLED: "true",
     }));
     const bodyText = new TextDecoder().decode(await response.arrayBuffer());
@@ -60,6 +72,9 @@ describe("hellomegController", () => {
     );
     expect(bodyText).toContain("イラスト：[@pine_nm](<https://twitter.com/pine_nm>)");
     expect(bodyText).toContain('filename="tokemeg.png"');
+    expect(highTemperatureImageService.generateHighTemperaturePng).toHaveBeenCalledWith(
+      expect.objectContaining({ temperature: 35, filename: "tokemeg.png" }),
+    );
     expect(gachaService.drawRarity).not.toHaveBeenCalled();
     expect(gachaService.buildSrResult).not.toHaveBeenCalled();
   });

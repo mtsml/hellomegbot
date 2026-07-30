@@ -26,8 +26,13 @@ describe("getKanazawaCurrentTemperature", () => {
 
   it("returns null when the weather API does not return a temperature", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({}))));
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(getKanazawaCurrentTemperature()).resolves.toBeNull();
+    expect(errorSpy).toHaveBeenCalledWith({
+      event: "weather_service_fallback",
+      phase: "current_temperature",
+      errorMessage: "invalid current temperature response",
+    });
   });
 });

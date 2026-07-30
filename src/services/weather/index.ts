@@ -50,7 +50,7 @@ export async function getKanazawaCurrentTemperature(): Promise<number | null> {
     console.error({
       event: "weather_service_fallback",
       phase: "current_temperature",
-      error,
+      errorMessage: error instanceof Error ? error.message : String(error),
     });
     return null;
   }

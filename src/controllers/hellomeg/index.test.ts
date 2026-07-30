@@ -45,7 +45,7 @@ beforeEach(() => {
 });
 
 describe("hellomegController", () => {
-  it("returns the fixed SR image without a rarity draw at 35 degrees or above", async () => {
+  it("returns the fixed SR image without a rarity draw at 30 degrees or above", async () => {
     vi.mocked(weatherService.getKanazawaCurrentTemperature).mockResolvedValue(35);
     vi.mocked(highTemperatureImageService.generateHighTemperaturePng).mockResolvedValue({
       filename: "tokemeg.png",

@@ -8,9 +8,9 @@ Discord からの Interaction は、次の流れで処理します。
 
 Discord → [`Worker`](src/worker.ts) → [`Controller`](src/controllers) → [`Service`](src/services)
 
-- [`Worker`](src/worker.ts): Cloudflare Workers のエントリーポイントです。`/interactions` を受け取り、Discord 署名を検証した後、Interaction の種類とコマンド名に応じた Controller を選択します。
-- [`Controller`](src/controllers): Discord 固有のリクエスト／レスポンスを扱います。コマンド引数やモーダル入力を処理し、必要に応じて静的アセットを取得して応答を返します。
-- [`Service`](src/services): Bot の機能を再利用可能な形で実装します。Discord の通信形式には依存せず、たとえばガチャの抽選、競馬結果の判定、Open-Meteo からの気温取得、画像の合成を担います。
+- [`Worker`](src/worker.ts): Cloudflare Workers のエントリーポイントです。`/interactions` を受け取り、Discord 署名を検証した後、Controller に振り分けます。
+- [`Controller`](src/controllers): Discord Interaction のコマンドやモーダル入力を検証し、Service を組み合わせて Discord へのレスポンスを組み立てます。
+- [`Service`](src/services): Discord や Cloudflare に依存しない Bot の機能を実装します。たとえばガチャの抽選、競馬結果の判定、Open-Meteo からの気温取得、画像の合成を担います。
 
 ## Setup
 

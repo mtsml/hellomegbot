@@ -15,7 +15,11 @@ Discord → [`Worker`](src/worker.ts) → [`Controller`](src/controllers) → [`
 ## Setup
 
 ```bash
+nodenv install
 npm ci
+
+# Optional: 開発用 Discord bot と連携する場合
+brew install cloudflared
 ```
 
 ## Local

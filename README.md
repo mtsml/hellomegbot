@@ -2,6 +2,16 @@
 
 Discord Interactions を Cloudflare Workers で処理する bot です。
 
+## Architecture
+
+Discord からの Interaction は、次の流れで処理します。
+
+Discord → [`Worker`](src/worker.ts) → [`Controller`](src/controllers) → [`Service`](src/services)
+
+- [`Worker`](src/worker.ts): Cloudflare Workers のエントリーポイントです。`/interactions` を受け取り、Discord 署名を検証した後、Interaction の種類とコマンド名に応じた Controller を選択します。
+- [`Controller`](src/controllers): Discord 固有のリクエスト／レスポンスを扱います。コマンド引数やモーダル入力を処理し、必要に応じて静的アセットを取得して応答を返します。
+- [`Service`](src/services): Bot の機能を再利用可能な形で実装します。Discord の通信形式には依存せず、たとえばガチャの抽選、競馬結果の判定、Open-Meteo からの気温取得、画像の合成を担います。
+
 ## Setup
 
 ```bash
@@ -46,7 +56,9 @@ curl -sS "$URL" -H 'content-type: application/json' -d '{"type":5,"data":{"custo
 
 ## Dev
 
-コマンドを登録後、ローカル Worker を Quick Tunnel で公開して動作確認します。
+開発用 Application のコマンドを登録し、ローカル Worker を Quick Tunnel で公開して動作確認します。
+
+まず、開発用 Application にコマンドを登録します。
 
 ```bash
 DISCORD_APPLICATION_ID=<development-application-id> \
@@ -54,7 +66,7 @@ DISCORD_BOT_TOKEN=<development-bot-token> \
 npm run register:commands
 ```
 
-続けて、開発用 Application の公開鍵を指定して Worker を起動します。`DISCORD_SKIP_SIGNATURE_VERIFICATION` は指定しません。
+続けて、開発用 Application の公開鍵を指定して Worker を起動します。
 
 ```bash
 npx wrangler dev \
@@ -62,13 +74,14 @@ npx wrangler dev \
   --var ASSETS_BASE_URL:https://hellomeg-assets.pages.dev
 ```
 
-さらに別のターミナルで Quick Tunnel を起動します。
+Worker を起動したまま、別のターミナルで Quick Tunnel を起動します。
 
 ```bash
 cloudflared tunnel --url http://localhost:8787
 ```
 
-表示された `https://<random>.trycloudflare.com/interactions` を Discord Developer Portal の開発用 Application の **Interactions Endpoint URL** に設定します。その後、テスト用サーバーでコマンドを実行します。Quick Tunnel の URL は起動ごとに変わるため、その都度 Endpoint URL を更新してください。
+表示された `https://<random>.trycloudflare.com/interactions` を Discord Developer Portal の開発用 Application の **Interactions Endpoint URL** に設定します。\
+その後、テスト用サーバーでコマンドを実行します。Quick Tunnel の URL は起動ごとに変わるため、その都度 Endpoint URL を更新してください。
 
 ## Test
 
@@ -76,22 +89,6 @@ cloudflared tunnel --url http://localhost:8787
 npm test
 ```
 
-## Deploy
-
-```bash
-npx wrangler deploy
-```
-
-## Weather data attribution
+## Attribution
 
 The `/hellomeg` high-temperature response uses weather data from [Open-Meteo.com](https://open-meteo.com/) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-## Register Commands
-
-必要な環境変数:
-- `DISCORD_APPLICATION_ID`
-- `DISCORD_BOT_TOKEN`
-
-```bash
-npm run register:commands
-```

@@ -1,7 +1,6 @@
 name = "hellomegbot"
 main = "src/worker.ts"
 compatibility_date = "2026-02-07"
-keep_vars = true
 
 [vars]
 HELLOMEG_HIGH_TEMPERATURE_ENABLED = "true"

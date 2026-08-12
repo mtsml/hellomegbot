@@ -22,6 +22,14 @@ describe("getKanazawaCurrentTemperature", () => {
     expect(String(fetchSpy.mock.calls[0][0])).toBe(
       "https://api.open-meteo.com/v1/forecast?latitude=36.56&longitude=136.66&current=temperature_2m&timezone=Asia%2FTokyo",
     );
+    expect(console.info).toHaveBeenCalledWith({
+      event: "weather_service_http_response",
+      phase: "current_temperature",
+      location: "Kanazawa",
+      status: 200,
+      statusText: "",
+      url: "",
+    });
   });
 
   it("returns null when the weather API does not return a temperature", async () => {

@@ -32,6 +32,14 @@ export async function getKanazawaCurrentTemperature(): Promise<number | null> {
     apiUrl.searchParams.set("timezone", "Asia/Tokyo");
 
     const response = await fetch(apiUrl);
+    console.info({
+      event: "weather_service_http_response",
+      phase: "current_temperature",
+      location: "Kanazawa",
+      status: response.status,
+      statusText: response.statusText,
+      url: response.url,
+    });
     if (!response.ok) throw new Error("failed to fetch current temperature");
 
     const payload = (await response.json()) as OpenMeteoResponse;

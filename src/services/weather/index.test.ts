@@ -27,8 +27,8 @@ describe("getKanazawaCurrentTemperature", () => {
       phase: "current_temperature",
       location: "Kanazawa",
       status: 200,
-      statusText: "",
       url: "",
+      body: JSON.stringify({ current: { temperature_2m: 34.9 } }),
     });
   });
 

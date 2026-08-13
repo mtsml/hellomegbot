@@ -9,6 +9,10 @@ HELLOMEG_HIGH_TEMPERATURE_THRESHOLD_CELSIUS = "30"
 [observability.logs]
 enabled = true
 
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+
 [assets]
 directory = "./src/assets"
 binding = "ASSETS"
